@@ -1,6 +1,119 @@
-# Welcome to Your Miaoda Project
+# P2P Chat - Aplicativo de Comunicação Descentralizada
 
-## Project Info
+## 📱 Visão Geral
+
+Aplicativo de comunicação peer-to-peer (P2P) baseado em WebRTC que permite conversas privadas e descentralizadas entre usuários, sem armazenamento em nuvem ou servidores intermediários.
+
+## ✨ Características Principais
+
+- **100% Privado**: Comunicação direta entre dispositivos via WebRTC
+- **Sem Servidor**: Nenhum dado de mensagem passa ou é armazenado em servidores
+- **Criptografia Ponta-a-Ponta**: Nativa do WebRTC
+- **Armazenamento Local**: Mensagens salvas apenas no dispositivo
+- **Sem Login**: Não requer cadastro, e-mail ou telefone
+- **Dark Mode**: Interface escura focada em privacidade
+- **QR Code**: Conexão fácil via QR Code ou código manual
+
+## 🚀 Como Usar
+
+### Iniciar uma Conexão (Usuário A)
+
+1. Acesse a página inicial
+2. Clique em "Gerar Código de Conexão"
+3. Compartilhe o QR Code ou código gerado com o Usuário B
+4. Aguarde o Usuário B processar e enviar o código de resposta
+5. Cole o código de resposta recebido
+6. Clique em "Conectar e Iniciar Chat"
+
+### Aceitar uma Conexão (Usuário B)
+
+1. Acesse a página inicial
+2. Vá para a aba "Aceitar Conexão"
+3. Cole o código recebido do Usuário A
+4. Clique em "Aceitar Conexão"
+5. Copie o código de resposta gerado
+6. Envie o código de resposta para o Usuário A
+7. Clique em "Ir para o Chat"
+
+### Durante o Chat
+
+- **Enviar Mensagens**: Digite e pressione Enter ou clique no botão enviar
+- **Indicador de Digitação**: Veja quando o outro usuário está digitando
+- **Status de Conexão**: Monitore o estado da conexão no topo
+- **Exportar Dados**: Faça backup das conversas localmente
+- **Desconectar**: Encerre a conexão quando desejar
+
+## 🔧 Tecnologias
+
+- **React + TypeScript**: Framework e tipagem
+- **WebRTC**: Comunicação P2P
+- **Tailwind CSS**: Estilização
+- **shadcn/ui**: Componentes de UI
+- **localStorage**: Persistência local
+- **QRCode.js**: Geração de QR Codes
+
+## 📋 Limitações
+
+- **Ambos Online**: Usuários devem estar online simultaneamente
+- **Sem Fila**: Mensagens não são entregues se o destinatário estiver offline
+- **NAT/Firewall**: Pode requerer configuração de rede em alguns casos
+- **Sem Histórico na Nuvem**: Mensagens existem apenas nos dispositivos
+
+## 🔐 Privacidade
+
+- Nenhum dado pessoal é coletado
+- Nenhuma mensagem é armazenada em servidores
+- Comunicação criptografada ponta-a-ponta
+- Controle total sobre seus dados
+- Backup manual opcional
+
+## 📦 Estrutura do Projeto
+
+```
+src/
+├── components/
+│   ├── chat/
+│   │   ├── ChatInterface.tsx      # Interface principal do chat
+│   │   └── MessageBubble.tsx      # Bolhas de mensagem
+│   └── connection/
+│       ├── QRCodeGenerator.tsx    # Gerador de código de conexão
+│       └── OfferAcceptor.tsx      # Aceitador de conexão
+├── hooks/
+│   └── use-webrtc.ts              # Hook de gerenciamento WebRTC
+├── lib/
+│   ├── webrtc.ts                  # Gerenciador WebRTC
+│   └── storage.ts                 # Gerenciador de armazenamento local
+├── pages/
+│   ├── Home.tsx                   # Página inicial
+│   └── Chat.tsx                   # Página de chat
+└── types/
+    └── types.ts                   # Definições de tipos
+```
+
+## 🎨 Design
+
+- **Cores**: Tema escuro com roxo (#8B5CF6) como cor primária
+- **Tipografia**: Sistema de fontes padrão
+- **Layout**: Responsivo para desktop e mobile
+- **Componentes**: shadcn/ui para consistência
+
+## 🛠️ Desenvolvimento
+
+```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Lint
+npm run lint
+```
+
+---
 
 ## Project Directory
 
@@ -17,15 +130,12 @@
 │   ├── App.tsx # Entry file
 │   ├── components # Components directory
 │   ├── context # Context directory
-│   ├── db # Database configuration directory
 │   ├── hooks # Common hooks directory
 │   ├── index.css # Global styles
-│   ├── layout # Layout directory
 │   ├── lib # Utility library directory
 │   ├── main.tsx # Entry file
 │   ├── routes.tsx # Routing configuration
 │   ├── pages # Pages directory
-│   ├── services # Database interaction directory
 │   ├── types # Type definitions directory
 ├── tsconfig.app.json # TypeScript frontend configuration file
 ├── tsconfig.json # TypeScript configuration file
@@ -35,13 +145,9 @@
 
 ## Tech Stack
 
-Vite, TypeScript, React, Supabase
+Vite, TypeScript, React, WebRTC, Tailwind CSS, shadcn/ui
 
 ## Development Guidelines
-
-### How to edit code locally?
-
-You can choose [VSCode](https://code.visualstudio.com/Download) or any IDE you prefer. The only requirement is to have Node.js and npm installed.
 
 ### Environment Requirements
 
@@ -51,24 +157,6 @@ You can choose [VSCode](https://code.visualstudio.com/Download) or any IDE you p
 Example:
 # node -v   # v20.18.3
 # npm -v    # 10.8.2
-```
-
-### Installing Node.js on Windows
-
-```
-# Step 1: Visit the Node.js official website: https://nodejs.org/, click download. The website will automatically suggest a suitable version (32-bit or 64-bit) for your system.
-# Step 2: Run the installer: Double-click the downloaded installer to run it.
-# Step 3: Complete the installation: Follow the installation wizard to complete the process.
-# Step 4: Verify installation: Open Command Prompt (cmd) or your IDE terminal, and type `node -v` and `npm -v` to check if Node.js and npm are installed correctly.
-```
-
-### Installing Node.js on macOS
-
-```
-# Step 1: Using Homebrew (Recommended method): Open Terminal. Type the command `brew install node` and press Enter. If Homebrew is not installed, you need to install it first by running the following command in Terminal:
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-Alternatively, use the official installer: Visit the Node.js official website. Download the macOS .pkg installer. Open the downloaded .pkg file and follow the prompts to complete the installation.
-# Step 2: Verify installation: Open Command Prompt (cmd) or your IDE terminal, and type `node -v` and `npm -v` to check if Node.js and npm are installed correctly.
 ```
 
 ### After installation, follow these steps:
@@ -82,10 +170,6 @@ Alternatively, use the official installer: Visit the Node.js official website. D
 # Step 6: if step 5 failed, try this command to start the development server: npx vite --host 127.0.0.1
 ```
 
-### How to develop backend services?
+## 📄 Licença
 
-Configure environment variables and install relevant dependencies.If you need to use a database, please use the official version of Supabase.
-
-## Learn More
-
-You can also check the help documentation: Download and Building the app（ [https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)）to learn more detailed content.
+© 2026 P2P Chat - Privacidade e segurança em primeiro lugar
