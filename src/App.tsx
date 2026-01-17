@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import IntersectObserver from '@/components/common/IntersectObserver';
+// import IntersectObserver from '@/components/common/IntersectObserver';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 
@@ -17,7 +17,7 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <Router>
-        <IntersectObserver />
+        {/* <IntersectObserver /> */}
         <div className="flex flex-col min-h-screen">
           <main className="flex-grow">
             <Routes>
