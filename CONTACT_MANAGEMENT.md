@@ -156,11 +156,17 @@ updateSessionName(contactId: string, newName: string): void
 2. Vê lista de contatos salvos
 3. Clica em "Conectar" no contato desejado
 4. Sistema:
-   - Carrega sessão anterior
+   - Carrega credenciais salvas (offer/answer)
+   - Identifica papel do usuário (initiator/receiver)
+   - **Se Iniciador:** Aceita resposta salva automaticamente
+   - **Se Receptor:** Aceita oferta salva e gera nova resposta
    - Restaura histórico de mensagens
    - Atualiza timestamp de última conexão
    - Navega para página de chat
-5. Pronto para conversar
+5. Conexão WebRTC restabelecida automaticamente
+6. Pronto para conversar
+
+**Importante:** Ambos os usuários devem estar online para a reconexão funcionar.
 
 ### Gerenciamento
 
@@ -200,10 +206,12 @@ updateSessionName(contactId: string, newName: string): void
 
 ## Limitações e Considerações
 
-1. **Reconexão Requer Ambos Online:**
-   - Contatos salvos facilitam reconexão
-   - Mas ambos usuários ainda precisam estar online
-   - Códigos salvos são reutilizados
+1. **Reconexão Automática com Credenciais Salvas:**
+   - Sistema reutiliza códigos de oferta/resposta salvos
+   - Reconexão é automática ao clicar em "Conectar"
+   - Ambos usuários ainda precisam estar online
+   - Histórico de mensagens é preservado
+   - Não é necessário trocar códigos novamente
 
 2. **Armazenamento Local:**
    - Dados existem apenas no dispositivo

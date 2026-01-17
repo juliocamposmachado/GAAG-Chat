@@ -192,8 +192,13 @@ export default function Home() {
     // Notificar reconexão
     NotificationManager.notifyReconnection(contact.name);
 
-    // Navegar para o chat
-    navigate('/chat');
+    // Navegar para o chat com informações de reconexão
+    navigate('/chat', { 
+      state: { 
+        reconnect: true,
+        savedContact: contact
+      } 
+    });
   };
 
   const handleDeleteSavedContact = (contactId: string) => {

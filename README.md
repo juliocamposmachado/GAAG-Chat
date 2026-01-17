@@ -182,6 +182,7 @@ npm run lint
 
 - **[PWA_GUIDE.md](./PWA_GUIDE.md)**: Guia completo sobre PWA e instalação
 - **[CONTACT_MANAGEMENT.md](./CONTACT_MANAGEMENT.md)**: Sistema de gerenciamento de contatos
+- **[RECONNECTION_GUIDE.md](./RECONNECTION_GUIDE.md)**: Reconexão automática com credenciais salvas
 - **[NOTIFICATIONS_GUIDE.md](./NOTIFICATIONS_GUIDE.md)**: Sistema de notificações com som
 - **[MOBILE_NOTIFICATIONS.md](./MOBILE_NOTIFICATIONS.md)**: Notificações otimizadas para mobile
 

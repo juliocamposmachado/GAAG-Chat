@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SaveContactDialog } from '@/components/chat/SaveContactDialog';
@@ -7,6 +7,7 @@ import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
 import { NotificationManager } from '@/lib/notifications';
 import { Shield, ArrowLeft, Download, Trash2, Edit, Save } from 'lucide-react';
+import type { SavedContact } from '@/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Chat() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [contactId, setContactId] = useState<string | null>(null);
   const [contactName, setContactName] = useState<string>('Novo Contato');
@@ -43,6 +45,8 @@ export default function Chat() {
     peerTyping,
     sendMessage,
     sendTypingIndicator,
+    acceptOffer,
+    acceptAnswer,
     disconnect,
     reset
   } = useWebRTC(contactId || undefined);
@@ -68,6 +72,61 @@ export default function Chat() {
     // Solicitar permissão de notificação
     NotificationManager.requestPermission();
   }, [navigate]);
+
+  // Reconectar automaticamente com credenciais salvas
+  useEffect(() => {
+    const state = location.state as { reconnect?: boolean; savedContact?: SavedContact } | null;
+    
+    if (state?.reconnect && state?.savedContact) {
+      const { savedContact } = state;
+      
+      console.log('[Reconexão] Iniciando reconexão automática', {
+        role: savedContact.myRole,
+        hasOffer: !!savedContact.offerCode,
+        hasAnswer: !!savedContact.answerCode
+      });
+
+      // Reconectar baseado no papel do usuário
+      const reconnect = async () => {
+        try {
+          if (savedContact.myRole === 'initiator' && savedContact.answerCode) {
+            // Eu criei a oferta, agora preciso aceitar a resposta novamente
+            console.log('[Reconexão] Aceitando resposta salva (initiator)');
+            await acceptAnswer(savedContact.answerCode);
+            
+            toast({
+              title: 'Reconectado!',
+              description: `Conexão restabelecida com ${savedContact.name}`
+            });
+          } else if (savedContact.myRole === 'receiver' && savedContact.offerCode) {
+            // Eu aceitei a oferta, preciso gerar nova resposta
+            console.log('[Reconexão] Aceitando oferta salva (receiver)');
+            const answer = await acceptOffer(savedContact.offerCode);
+            
+            // Atualizar o código de resposta salvo
+            StorageManager.updateSavedContactAnswer(savedContact.id, answer);
+            
+            toast({
+              title: 'Reconectado!',
+              description: `Conexão restabelecida com ${savedContact.name}. Compartilhe o novo código de resposta se necessário.`
+            });
+          }
+        } catch (error) {
+          console.error('[Reconexão] Erro ao reconectar:', error);
+          toast({
+            title: 'Erro na Reconexão',
+            description: 'Não foi possível restabelecer a conexão. Tente criar uma nova conexão.',
+            variant: 'destructive'
+          });
+        }
+      };
+
+      reconnect();
+      
+      // Limpar o state para evitar reconexões múltiplas
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, acceptOffer, acceptAnswer, toast]);
 
   // Notificar quando conexão for estabelecida
   useEffect(() => {

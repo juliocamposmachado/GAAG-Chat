@@ -153,6 +153,14 @@ export class StorageManager {
     }
   }
 
+  static updateSavedContactAnswer(contactId: string, answerCode: string): void {
+    const contact = this.getSavedContact(contactId);
+    if (contact) {
+      contact.answerCode = answerCode;
+      this.saveSavedContact(contact);
+    }
+  }
+
   // Sessão atual
   static setCurrentSession(contactId: string): void {
     localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, contactId);
