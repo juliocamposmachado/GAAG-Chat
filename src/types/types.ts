@@ -6,9 +6,13 @@ export interface Message {
   sender: 'me' | 'peer';
   timestamp: number;
   delivered?: boolean;
-  type?: 'text' | 'audio'; // Tipo de mensagem
+  type?: 'text' | 'audio' | 'image' | 'video'; // Tipo de mensagem
   audioData?: string; // Base64 encoded audio para mensagens de áudio
   audioDuration?: number; // Duração do áudio em segundos
+  mediaData?: string; // Base64 encoded media (imagem ou vídeo)
+  mediaType?: string; // MIME type do media (image/jpeg, video/mp4, etc)
+  mediaWidth?: number; // Largura original da imagem/vídeo
+  mediaHeight?: number; // Altura original da imagem/vídeo
 }
 
 export interface Contact {

@@ -49,6 +49,7 @@ export default function Chat() {
     remoteStream,
     sendMessage,
     sendAudioMessage,
+    sendMediaMessage,
     sendTypingIndicator,
     acceptOffer,
     acceptAnswer,
@@ -470,6 +471,7 @@ export default function Chat() {
             messages={messages}
             onSendMessage={sendMessage}
             onSendAudioMessage={sendAudioMessage}
+            onSendMediaMessage={sendMediaMessage}
             connectionState={connectionState}
             peerTyping={peerTyping}
             onTyping={sendTypingIndicator}

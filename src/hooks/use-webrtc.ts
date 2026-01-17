@@ -76,6 +76,32 @@ export function useWebRTC(contactId?: string) {
       NotificationManager.playMessageNotification();
     };
 
+    const handleMediaMessage = (mediaData: string, mediaType: string, width?: number, height?: number) => {
+      if (!contactId) return;
+
+      const isImage = mediaType.startsWith('image/');
+      const isVideo = mediaType.startsWith('video/');
+
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        text: isImage ? '[Imagem]' : '[Vídeo]',
+        sender: 'peer',
+        timestamp: Date.now(),
+        delivered: true,
+        type: isImage ? 'image' : 'video',
+        mediaData,
+        mediaType,
+        mediaWidth: width,
+        mediaHeight: height
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
+      StorageManager.addMessage(contactId, newMessage);
+      
+      // Tocar som de notificação de mensagem
+      NotificationManager.playMessageNotification();
+    };
+
     const handleCallState = (state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => {
       console.log('Call State Changed:', state);
       setCallState(state);
@@ -89,6 +115,7 @@ export function useWebRTC(contactId?: string) {
     webrtc.onStateChange(handleStateChange);
     webrtc.onMessage(handleMessage);
     webrtc.onAudioMessage(handleAudioMessage);
+    webrtc.onMediaMessage(handleMediaMessage);
     webrtc.onTyping(handleTyping);
     webrtc.onCallState(handleCallState);
     webrtc.onRemoteStream(handleRemoteStream);
@@ -152,6 +179,63 @@ export function useWebRTC(contactId?: string) {
         StorageManager.addMessage(contactId, newMessage);
       };
       reader.readAsDataURL(audioBlob);
+    }
+  }, [contactId]);
+
+  const sendMediaMessage = useCallback(async (file: File, mediaType: 'image' | 'video') => {
+    if (!contactId) return;
+
+    const success = await webrtc.sendMediaMessage(file, mediaType);
+    
+    if (success) {
+      // Converter file para base64 para salvar localmente
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Media = reader.result as string;
+        
+        // Obter dimensões
+        let width: number | undefined;
+        let height: number | undefined;
+        
+        if (mediaType === 'image') {
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = () => {
+              width = img.width;
+              height = img.height;
+              resolve(null);
+            };
+            img.src = base64Media;
+          });
+        } else if (mediaType === 'video') {
+          const video = document.createElement('video');
+          await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+              width = video.videoWidth;
+              height = video.videoHeight;
+              resolve(null);
+            };
+            video.src = base64Media;
+          });
+        }
+        
+        const newMessage: Message = {
+          id: `${Date.now()}-${Math.random()}`,
+          text: mediaType === 'image' ? '[Imagem]' : '[Vídeo]',
+          sender: 'me',
+          timestamp: Date.now(),
+          delivered: true,
+          type: mediaType,
+          mediaData: base64Media,
+          mediaType: file.type,
+          mediaWidth: width,
+          mediaHeight: height
+        };
+
+        setMessages((prev) => [...prev, newMessage]);
+        StorageManager.addMessage(contactId, newMessage);
+      };
+      reader.readAsDataURL(file);
     }
   }, [contactId]);
 
@@ -234,6 +318,7 @@ export function useWebRTC(contactId?: string) {
     remoteStream,
     sendMessage,
     sendAudioMessage,
+    sendMediaMessage,
     sendTypingIndicator,
     createOffer,
     acceptOffer,

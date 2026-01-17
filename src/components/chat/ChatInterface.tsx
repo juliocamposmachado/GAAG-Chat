@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageBubble } from './MessageBubble';
 import { VoiceMessageRecorder } from './VoiceMessageRecorder';
+import { MediaMessageUploader } from './MediaMessageUploader';
 import { Send, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Message, ConnectionState } from '@/types';
@@ -11,6 +12,7 @@ interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (text: string) => void;
   onSendAudioMessage?: (audioBlob: Blob, duration: number) => void;
+  onSendMediaMessage?: (file: File, mediaType: 'image' | 'video') => void;
   connectionState: ConnectionState;
   peerTyping?: boolean;
   onTyping?: (isTyping: boolean) => void;
@@ -20,6 +22,7 @@ export function ChatInterface({
   messages,
   onSendMessage,
   onSendAudioMessage,
+  onSendMediaMessage,
   connectionState,
   peerTyping = false,
   onTyping
@@ -141,6 +144,15 @@ export function ChatInterface({
             />
           ) : (
             <>
+              {/* Botões de mídia */}
+              {onSendMediaMessage && isConnected && (
+                <MediaMessageUploader
+                  onSend={(file, mediaType) => {
+                    onSendMediaMessage(file, mediaType);
+                  }}
+                />
+              )}
+              
               <Textarea
                 value={inputText}
                 onChange={(e) => handleInputChange(e.target.value)}
@@ -155,7 +167,7 @@ export function ChatInterface({
               />
               
               {/* Botão de mensagem de voz */}
-              {onSendAudioMessage && (
+              {onSendAudioMessage && isConnected && (
                 <VoiceMessageRecorder
                   onSend={(audioBlob, duration) => {
                     onSendAudioMessage(audioBlob, duration);

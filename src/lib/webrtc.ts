@@ -9,6 +9,7 @@ export class WebRTCManager {
   private remoteStream: MediaStream | null = null;
   private onMessageCallback: ((message: string) => void) | null = null;
   private onAudioMessageCallback: ((audioData: string, duration: number) => void) | null = null;
+  private onMediaMessageCallback: ((mediaData: string, mediaType: string, width?: number, height?: number) => void) | null = null;
   private onStateChangeCallback: ((state: ConnectionState) => void) | null = null;
   private onTypingCallback: ((isTyping: boolean) => void) | null = null;
   private onCallStateCallback: ((state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => void) | null = null;
@@ -97,6 +98,8 @@ export class WebRTCManager {
           this.onMessageCallback?.(data.text);
         } else if (data.type === 'audio-message') {
           this.onAudioMessageCallback?.(data.audioData, data.duration);
+        } else if (data.type === 'media-message') {
+          this.onMediaMessageCallback?.(data.mediaData, data.mediaType, data.width, data.height);
         } else if (data.type === 'typing') {
           this.onTypingCallback?.(data.isTyping);
         } else if (data.type === 'call-request') {
@@ -268,12 +271,83 @@ export class WebRTCManager {
     });
   }
 
+  // Enviar mensagem de mídia (imagem ou vídeo)
+  async sendMediaMessage(file: File, mediaType: 'image' | 'video'): Promise<boolean> {
+    if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+      console.warn('[WebRTC] DataChannel não está aberto para enviar mídia');
+      return false;
+    }
+
+    try {
+      console.log('[WebRTC] Enviando mensagem de mídia, tamanho:', file.size, 'bytes');
+      
+      // Converter File para base64
+      const base64Media = await this.blobToBase64(file);
+      
+      // Obter dimensões se for imagem
+      let width: number | undefined;
+      let height: number | undefined;
+      
+      if (mediaType === 'image') {
+        const dimensions = await this.getImageDimensions(base64Media);
+        width = dimensions.width;
+        height = dimensions.height;
+      } else if (mediaType === 'video') {
+        const dimensions = await this.getVideoDimensions(base64Media);
+        width = dimensions.width;
+        height = dimensions.height;
+      }
+      
+      // Enviar mensagem de mídia
+      this.dataChannel.send(JSON.stringify({ 
+        type: 'media-message', 
+        mediaData: base64Media,
+        mediaType: file.type,
+        width,
+        height
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('[WebRTC] Erro ao enviar mensagem de mídia:', error);
+      return false;
+    }
+  }
+
+  // Obter dimensões da imagem
+  private getImageDimensions(base64: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.width, height: img.height });
+      };
+      img.onerror = reject;
+      img.src = base64;
+    });
+  }
+
+  // Obter dimensões do vídeo
+  private getVideoDimensions(base64: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.onloadedmetadata = () => {
+        resolve({ width: video.videoWidth, height: video.videoHeight });
+      };
+      video.onerror = reject;
+      video.src = base64;
+    });
+  }
+
   onMessage(callback: (message: string) => void): void {
     this.onMessageCallback = callback;
   }
 
   onAudioMessage(callback: (audioData: string, duration: number) => void): void {
     this.onAudioMessageCallback = callback;
+  }
+
+  onMediaMessage(callback: (mediaData: string, mediaType: string, width?: number, height?: number) => void): void {
+    this.onMediaMessageCallback = callback;
   }
 
   onStateChange(callback: (state: ConnectionState) => void): void {

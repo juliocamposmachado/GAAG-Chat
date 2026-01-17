@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { AudioMessagePlayer } from './AudioMessagePlayer';
+import { MediaMessageDisplay } from './MediaMessageDisplay';
 import type { Message } from '@/types';
 
 interface MessageBubbleProps {
@@ -14,6 +15,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   });
 
   const isAudioMessage = message.type === 'audio' && message.audioData && message.audioDuration;
+  const isMediaMessage = (message.type === 'image' || message.type === 'video') && message.mediaData && message.mediaType;
 
   return (
     <div
@@ -25,7 +27,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <div
         className={cn(
           'max-w-[75%] xl:max-w-[60%] rounded-2xl shadow-sm',
-          isAudioMessage ? 'p-0' : 'px-4 py-2.5',
+          (isAudioMessage || isMediaMessage) ? 'p-0' : 'px-4 py-2.5',
           isMe
             ? 'bg-primary text-primary-foreground rounded-br-sm'
             : 'bg-card text-card-foreground border border-border rounded-bl-sm'
@@ -41,6 +43,27 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             <div
               className={cn(
                 'flex items-center gap-1 mt-1 text-xs px-2',
+                isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+              )}
+            >
+              <span>{time}</span>
+              {isMe && message.delivered && (
+                <span className="ml-1">✓✓</span>
+              )}
+            </div>
+          </div>
+        ) : isMediaMessage ? (
+          <div className="p-2">
+            <MediaMessageDisplay
+              mediaData={message.mediaData!}
+              mediaType={message.mediaType!}
+              sender={message.sender}
+              width={message.mediaWidth}
+              height={message.mediaHeight}
+            />
+            <div
+              className={cn(
+                'flex items-center gap-1 mt-1 text-xs',
                 isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
               )}
             >
