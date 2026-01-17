@@ -17,6 +17,7 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 - **💾 Contatos Salvos**: Salve conexões para reconectar rapidamente
 - **✏️ Renomear Contatos**: Personalize nomes dos seus contatos
 - **🔄 Reconexão Rápida**: Acesse conversas anteriores com um clique
+- **🔔 Notificações com Som**: Receba alertas sonoros de reconexões e mensagens
 
 ## 🚀 Como Usar
 
@@ -72,6 +73,21 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 1. Na página inicial, veja a lista de "Contatos Salvos"
 2. Clique em "Conectar" no contato desejado
 3. O histórico de mensagens será restaurado automaticamente
+4. Você receberá uma notificação com som confirmando a reconexão
+
+### Notificações
+
+**Ativar Notificações:**
+1. Clique no botão de sino (🔔) no header
+2. Permita notificações quando solicitado
+3. Teste a notificação para confirmar
+
+**Você será notificado quando:**
+- Reconectar com um contato salvo
+- Receber uma nova mensagem (apenas se app em segundo plano)
+- Conexão WebRTC for estabelecida com sucesso
+
+**Todas as notificações incluem som!**
 
 ## 🔧 Tecnologias
 
@@ -83,6 +99,8 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 - **QRCode.js**: Geração de QR Codes
 - **PWA**: Service Worker + Manifest para instalação
 - **Vite**: Build tool e dev server
+- **Notifications API**: Notificações do navegador
+- **Web Audio API**: Geração de sons de notificação
 
 ## 📋 Limitações
 
@@ -112,13 +130,16 @@ src/
 │   │   ├── QRCodeGenerator.tsx    # Gerador de código de conexão
 │   │   ├── OfferAcceptor.tsx      # Aceitador de conexão
 │   │   └── SavedContactsList.tsx  # Lista de contatos salvos
+│   ├── notifications/
+│   │   └── NotificationPermissionPrompt.tsx  # Prompt de permissão
 │   └── pwa/
 │       └── InstallPrompt.tsx      # Prompt de instalação PWA
 ├── hooks/
 │   └── use-webrtc.ts              # Hook de gerenciamento WebRTC
 ├── lib/
 │   ├── webrtc.ts                  # Gerenciador WebRTC
-│   └── storage.ts                 # Gerenciador de armazenamento local
+│   ├── storage.ts                 # Gerenciador de armazenamento local
+│   └── notifications.ts           # Gerenciador de notificações
 ├── pages/
 │   ├── Home.tsx                   # Página inicial
 │   └── Chat.tsx                   # Página de chat
@@ -156,6 +177,7 @@ npm run lint
 
 - **[PWA_GUIDE.md](./PWA_GUIDE.md)**: Guia completo sobre PWA e instalação
 - **[CONTACT_MANAGEMENT.md](./CONTACT_MANAGEMENT.md)**: Sistema de gerenciamento de contatos
+- **[NOTIFICATIONS_GUIDE.md](./NOTIFICATIONS_GUIDE.md)**: Sistema de notificações com som
 
 ---
 

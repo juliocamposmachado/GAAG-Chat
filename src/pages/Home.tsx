@@ -7,8 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { QRCodeGenerator } from '@/components/connection/QRCodeGenerator';
 import { OfferAcceptor } from '@/components/connection/OfferAcceptor';
 import { SavedContactsList } from '@/components/connection/SavedContactsList';
+import { NotificationPermissionPrompt } from '@/components/notifications/NotificationPermissionPrompt';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
+import { NotificationManager } from '@/lib/notifications';
 import { Shield, MessageCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SavedContact } from '@/types';
@@ -31,10 +33,13 @@ export default function Home() {
   const [currentOfferCode, setCurrentOfferCode] = useState('');
   const [currentAnswerCode, setCurrentAnswerCode] = useState('');
 
-  // Carregar contatos salvos
+  // Carregar contatos salvos e inicializar notificações
   useEffect(() => {
     const contacts = StorageManager.getAllSavedContacts();
     setSavedContacts(contacts);
+    
+    // Inicializar sistema de notificações
+    NotificationManager.initialize();
   }, []);
 
   // Monitorar estado de conexão e redirecionar quando conectado
@@ -167,6 +172,9 @@ export default function Home() {
   };
 
   const handleSelectSavedContact = async (contact: SavedContact) => {
+    // Solicitar permissão de notificação
+    await NotificationManager.requestPermission();
+    
     toast({
       title: 'Reconectando...',
       description: `Estabelecendo conexão com ${contact.name}`
@@ -180,6 +188,9 @@ export default function Home() {
     // Atualizar lista de contatos
     const contacts = StorageManager.getAllSavedContacts();
     setSavedContacts(contacts);
+
+    // Notificar reconexão
+    NotificationManager.notifyReconnection(contact.name);
 
     // Navegar para o chat
     navigate('/chat');
@@ -211,6 +222,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">Comunicação privada e descentralizada</p>
               </div>
             </div>
+            <NotificationPermissionPrompt />
           </div>
         </div>
       </header>

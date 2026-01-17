@@ -5,6 +5,7 @@ import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SaveContactDialog } from '@/components/chat/SaveContactDialog';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
+import { NotificationManager } from '@/lib/notifications';
 import { Shield, ArrowLeft, Download, Trash2, Edit, Save } from 'lucide-react';
 import {
   AlertDialog,
@@ -63,7 +64,28 @@ export default function Chat() {
     // Verificar se já está salvo
     const savedContact = StorageManager.getSavedContact(currentSession);
     setIsSaved(!!savedContact);
+
+    // Solicitar permissão de notificação
+    NotificationManager.requestPermission();
   }, [navigate]);
+
+  // Notificar quando conexão for estabelecida
+  useEffect(() => {
+    if (connectionState === 'connected' && contactName) {
+      NotificationManager.notifyConnectionEstablished(contactName);
+    }
+  }, [connectionState, contactName]);
+
+  // Notificar quando receber nova mensagem
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      // Notificar apenas mensagens do peer (não as minhas)
+      if (lastMessage.sender === 'peer' && !document.hasFocus()) {
+        NotificationManager.notifyNewMessage(contactName, lastMessage.text);
+      }
+    }
+  }, [messages, contactName]);
 
   const handleDisconnect = () => {
     disconnect();
