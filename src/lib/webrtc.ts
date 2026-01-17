@@ -1,4 +1,4 @@
-// Gerenciador de conexão WebRTC GAAG
+// Gerenciador de conexão WebRTC Like Look Solutions
 
 import type { ConnectionState } from '@/types';
 

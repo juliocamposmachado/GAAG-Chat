@@ -1,4 +1,4 @@
-# Implementação de Chamadas de Voz - GAAG Chat
+# Implementação de Chamadas de Voz - Like Look Solutions
 
 ## Resumo
 

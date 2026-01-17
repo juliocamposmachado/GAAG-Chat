@@ -223,7 +223,7 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">GAAG Chat</h1>
+                <h1 className="text-xl font-bold">Like Look Solutions</h1>
                 <p className="text-xs text-muted-foreground">Comunicação privada e descentralizada</p>
               </div>
             </div>
@@ -339,7 +339,7 @@ export default function Home() {
                   <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">
-                      {connectionState === 'connecting' && 'Estabelecendo conexão GAAG...'}
+                      {connectionState === 'connecting' && 'Estabelecendo conexão...'}
                       {connectionState === 'connected' && 'Conectado! Redirecionando...'}
                       {connectionState === 'failed' && 'Falha na conexão. Tente novamente.'}
                       {connectionState === 'disconnected' && 'Aguardando conexão...'}
@@ -377,7 +377,7 @@ export default function Home() {
               </a>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              © 2026 GAAG Chat • Privacidade e segurança em primeiro lugar
+              © 2026 Like Look Solutions • Privacidade e segurança em primeiro lugar
             </p>
           </div>
         </div>

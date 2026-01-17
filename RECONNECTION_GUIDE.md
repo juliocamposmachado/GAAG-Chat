@@ -1,8 +1,8 @@
-# Guia de Reconexão Automática - GAAG Chat
+# Guia de Reconexão Automática - Like Look Solutions
 
 ## Visão Geral
 
-O GAAG Chat implementa reconexão automática usando as credenciais WebRTC salvas da conexão original. Quando você clica em "Conectar" em um contato salvo, o sistema automaticamente restabelece a conexão P2P sem necessidade de trocar códigos novamente.
+O Like Look Solutions implementa reconexão automática usando as credenciais WebRTC salvas da conexão original. Quando você clica em "Conectar" em um contato salvo, o sistema automaticamente restabelece a conexão P2P sem necessidade de trocar códigos novamente.
 
 ## Como Funciona
 

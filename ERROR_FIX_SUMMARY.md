@@ -1,4 +1,4 @@
-# React Hooks Error Fix - GAAG Chat
+# React Hooks Error Fix - Like Look Solutions
 
 ## Error Description
 

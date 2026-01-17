@@ -1,4 +1,4 @@
-# Resumo: Envio de Imagens e Vídeos - GAAG Chat
+# Resumo: Envio de Imagens e Vídeos - Like Look Solutions
 
 ## O Que Foi Implementado
 

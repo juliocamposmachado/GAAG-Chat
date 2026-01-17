@@ -1,8 +1,8 @@
-# Mensagens de Áudio - GAAG Chat
+# Mensagens de Áudio - Like Look Solutions
 
 ## Resumo
 
-Implementado funcionalidade completa de mensagens de áudio no GAAG Chat, permitindo que usuários gravem e enviem mensagens de voz diretamente através do chat P2P. As mensagens de áudio são transmitidas via WebRTC DataChannel e armazenadas localmente.
+Implementado funcionalidade completa de mensagens de áudio no Like Look Solutions, permitindo que usuários gravem e enviem mensagens de voz diretamente através do chat P2P. As mensagens de áudio são transmitidas via WebRTC DataChannel e armazenadas localmente.
 
 ## Funcionalidades
 

@@ -1,8 +1,8 @@
-# Som de Notificação de Mensagem - GAAG Chat
+# Som de Notificação de Mensagem - Like Look Solutions
 
 ## Resumo
 
-Implementado som de notificação para mensagens recebidas no GAAG Chat. Quando o usuário recebe uma mensagem (texto ou áudio), um som curto de 440Hz (nota Lá/A4) é reproduzido automaticamente.
+Implementado som de notificação para mensagens recebidas no Like Look Solutions. Quando o usuário recebe uma mensagem (texto ou áudio), um som curto de 440Hz (nota Lá/A4) é reproduzido automaticamente.
 
 ## Funcionalidade
 

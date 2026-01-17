@@ -1,8 +1,8 @@
-# Fluxo de Notificações - GAAG Chat
+# Fluxo de Notificações - Like Look Solutions
 
 ## Resumo Rápido
 
-Este documento descreve o comportamento completo do sistema de notificações do GAAG Chat.
+Este documento descreve o comportamento completo do sistema de notificações do Like Look Solutions.
 
 ## Eventos que Geram Notificações
 
@@ -173,7 +173,7 @@ oscillator2.frequency.value = 1000;
 ---
 
 ### Cenário 3: Usuário em Outra Aba (Desktop)
-**Situação:** GAAG Chat aberto mas em aba de background no desktop
+**Situação:** Like Look Solutions aberto mas em aba de background no desktop
 
 **Comportamento:**
 - Recebe mensagem → Som toca ✅ + Notificação visual ✅
@@ -184,7 +184,7 @@ oscillator2.frequency.value = 1000;
 ---
 
 ### Cenário 4: App em Background (Mobile)
-**Situação:** GAAG Chat minimizado ou em segundo plano no mobile
+**Situação:** Like Look Solutions minimizado ou em segundo plano no mobile
 
 **Comportamento:**
 - Recebe mensagem → Som toca ✅ + Notificação na central do sistema ✅

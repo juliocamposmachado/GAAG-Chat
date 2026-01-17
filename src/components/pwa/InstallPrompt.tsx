@@ -67,7 +67,7 @@ export function InstallPrompt() {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <Download className="w-5 h-5 text-primary" />
-              <CardTitle className="text-base">Instalar GAAG Chat</CardTitle>
+              <CardTitle className="text-base">Instalar Like Look Solutions</CardTitle>
             </div>
             <Button
               variant="ghost"

@@ -1,4 +1,4 @@
-// Gerenciador de notificações para GAAG Chat
+// Gerenciador de notificações para Like Look Solutions
 
 export class NotificationManager {
   private static hasPermission = false;

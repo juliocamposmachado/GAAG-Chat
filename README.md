@@ -1,4 +1,4 @@
-# GAAG Chat - Aplicativo de Comunicação Descentralizada
+# Like Look Solutions - Aplicativo de Comunicação Descentralizada
 
 ## 📱 Visão Geral
 
@@ -24,11 +24,11 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 
 ### 📲 Instalar o Aplicativo (Recomendado)
 
-O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu dispositivo:
+O Like Look Solutions é um PWA (Progressive Web App) e pode ser instalado no seu dispositivo:
 
 **Android/Chrome:**
-1. Abra o GAAG Chat no navegador
-2. Toque no banner "Instalar GAAG Chat" ou
+1. Abra o Like Look Solutions no navegador
+2. Toque no banner "Instalar Like Look Solutions" ou
 3. Menu (⋮) → "Instalar aplicativo"
 
 **iOS/Safari:**
@@ -38,7 +38,7 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 
 **Desktop:**
 1. Clique no ícone de instalação (⊕) na barra de endereço
-2. Ou Menu → "Instalar GAAG Chat"
+2. Ou Menu → "Instalar Like Look Solutions"
 
 ### Iniciar uma Conexão (Usuário A)
 
@@ -282,4 +282,4 @@ Example:
 
 ## 📄 Licença
 
-© 2026 GAAG Chat - Privacidade e segurança em primeiro lugar
+© 2026 Like Look Solutions - Privacidade e segurança em primeiro lugar

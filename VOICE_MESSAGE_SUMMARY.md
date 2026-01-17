@@ -1,4 +1,4 @@
-# Resumo: Mensagens de Áudio - GAAG Chat
+# Resumo: Mensagens de Áudio - Like Look Solutions
 
 ## O Que Foi Implementado
 

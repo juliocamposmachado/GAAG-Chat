@@ -1,6 +1,6 @@
 {
-  "name": "GAAG Chat - Comunicação Privada",
-  "short_name": "GAAG Chat",
+  "name": "Like Look Solutions - Comunicação Privada",
+  "short_name": "Like Look",
   "description": "Aplicativo de comunicação peer-to-peer baseado em WebRTC. Privacidade total, sem servidores, criptografia ponta-a-ponta.",
   "start_url": "/",
   "display": "standalone",

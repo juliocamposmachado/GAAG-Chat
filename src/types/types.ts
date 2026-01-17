@@ -1,4 +1,4 @@
-// Tipos para WebRTC e mensagens GAAG
+// Tipos para WebRTC e mensagens Like Look Solutions
 
 export interface Message {
   id: string;

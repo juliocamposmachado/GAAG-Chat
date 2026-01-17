@@ -1,8 +1,8 @@
-# Envio de Imagens e Vídeos - GAAG Chat
+# Envio de Imagens e Vídeos - Like Look Solutions
 
 ## Resumo
 
-Implementada funcionalidade completa de envio e recebimento de imagens e vídeos no GAAG Chat P2P. Os usuários podem selecionar arquivos de mídia, visualizar antes de enviar, e compartilhar através do WebRTC DataChannel. As mídias são exibidas com preview interativo, suporte a fullscreen para imagens, e controles nativos para vídeos.
+Implementada funcionalidade completa de envio e recebimento de imagens e vídeos no Like Look Solutions P2P. Os usuários podem selecionar arquivos de mídia, visualizar antes de enviar, e compartilhar através do WebRTC DataChannel. As mídias são exibidas com preview interativo, suporte a fullscreen para imagens, e controles nativos para vídeos.
 
 ## Funcionalidades
 
