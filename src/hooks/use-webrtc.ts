@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getWebRTCManager, resetWebRTCManager } from '@/lib/webrtc';
 import { StorageManager } from '@/lib/storage';
+import { NotificationManager } from '@/lib/notifications';
 import type { Message, ConnectionState } from '@/types';
 
 export function useWebRTC(contactId?: string) {
@@ -45,6 +46,9 @@ export function useWebRTC(contactId?: string) {
 
       setMessages((prev) => [...prev, newMessage]);
       StorageManager.addMessage(contactId, newMessage);
+      
+      // Tocar som de notificação de mensagem
+      NotificationManager.playMessageNotification();
     };
 
     const handleTyping = (isTyping: boolean) => {
@@ -67,6 +71,9 @@ export function useWebRTC(contactId?: string) {
 
       setMessages((prev) => [...prev, newMessage]);
       StorageManager.addMessage(contactId, newMessage);
+      
+      // Tocar som de notificação de mensagem
+      NotificationManager.playMessageNotification();
     };
 
     const handleCallState = (state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => {

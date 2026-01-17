@@ -310,6 +310,38 @@ export class NotificationManager {
     });
   }
 
+  // Som de notificação de mensagem (440Hz - Lá)
+  static playMessageNotification(): void {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Frequência: 440Hz (Lá / A4)
+      oscillator.frequency.value = 440;
+      oscillator.type = 'sine';
+      
+      // Envelope: fade in rápido, fade out suave
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+      
+      // Fechar contexto após reprodução
+      setTimeout(() => {
+        audioContext.close();
+      }, 400);
+    } catch (error) {
+      console.error('[Notificações] Erro ao tocar som de mensagem:', error);
+    }
+  }
+
   // Solicitar permissão ao iniciar o app
   static async initialize(): Promise<void> {
     if ('Notification' in window && Notification.permission === 'default') {
