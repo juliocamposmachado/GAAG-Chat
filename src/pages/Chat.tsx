@@ -85,13 +85,14 @@ export default function Chat() {
         // Mensagem recebida - sempre tocar som
         NotificationManager.playMessageSound();
         
-        // Notificação visual apenas se janela não estiver em foco
-        if (!document.hasFocus()) {
-          NotificationManager.notifyNewMessage(contactName, lastMessage.text);
-        }
+        // Notificação visual (mobile: sempre, desktop: apenas em background)
+        NotificationManager.notifyNewMessage(contactName, lastMessage.text);
       } else if (lastMessage.sender === 'me') {
         // Mensagem enviada - tocar som
         NotificationManager.playMessageSound();
+        
+        // Notificação visual apenas em mobile
+        NotificationManager.notifyMessageSent();
       }
     }
   }, [messages, contactName]);

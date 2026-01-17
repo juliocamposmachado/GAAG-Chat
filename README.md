@@ -84,11 +84,15 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 
 **Você será notificado quando:**
 - Reconectar com um contato salvo (visual + som)
-- Receber uma nova mensagem (sempre som, visual apenas se app em segundo plano)
-- Enviar uma mensagem (apenas som como feedback)
+- Receber uma nova mensagem (sempre som, visual sempre em mobile, apenas em background no desktop)
+- Enviar uma mensagem (som sempre, visual apenas em mobile)
 - Conexão WebRTC for estabelecida com sucesso (visual + som)
 
 **Todas as notificações incluem som!**
+
+**Diferenças Mobile vs Desktop:**
+- **Mobile:** Notificações sempre aparecem, mesmo com app aberto
+- **Desktop:** Notificações apenas quando app em segundo plano
 
 ## 🔧 Tecnologias
 
@@ -179,6 +183,7 @@ npm run lint
 - **[PWA_GUIDE.md](./PWA_GUIDE.md)**: Guia completo sobre PWA e instalação
 - **[CONTACT_MANAGEMENT.md](./CONTACT_MANAGEMENT.md)**: Sistema de gerenciamento de contatos
 - **[NOTIFICATIONS_GUIDE.md](./NOTIFICATIONS_GUIDE.md)**: Sistema de notificações com som
+- **[MOBILE_NOTIFICATIONS.md](./MOBILE_NOTIFICATIONS.md)**: Notificações otimizadas para mobile
 
 ---
 

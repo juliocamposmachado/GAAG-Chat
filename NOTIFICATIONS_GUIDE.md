@@ -21,14 +21,18 @@ Sistema completo de notificações com som para o GAAG Chat, que alerta o usuár
 - **Título:** "Nova mensagem de [Nome do Contato]"
 - **Mensagem:** Prévia da mensagem (até 50 caracteres)
 - **Som:** Dois bipes
-- **Notificação Visual:** Apenas se janela não estiver em foco
-- **Comportamento:** Som sempre toca, notificação visual apenas em background
+- **Notificação Visual:** 
+  - **Mobile:** Sempre exibe (mesmo com app aberto)
+  - **Desktop:** Apenas se janela não estiver em foco
+- **Comportamento:** Som sempre toca, notificação visual adaptada por plataforma
 
 #### Mensagem Enviada
 - **Quando:** Ao enviar uma mensagem
 - **Som:** Dois bipes
-- **Notificação Visual:** Não (apenas som)
-- **Comportamento:** Feedback sonoro de confirmação de envio
+- **Notificação Visual:** 
+  - **Mobile:** Exibe confirmação "Mensagem enviada"
+  - **Desktop:** Não exibe (apenas som)
+- **Comportamento:** Feedback sonoro + visual em mobile para confirmar envio
 
 #### Conexão Estabelecida
 - **Quando:** Conexão WebRTC é estabelecida com sucesso
@@ -116,9 +120,13 @@ class NotificationManager {
   // Tocar som de mensagem (sem notificação visual)
   static playMessageSound(): void
   
+  // Detectar dispositivo móvel
+  static isMobile(): boolean
+  
   // Notificações específicas
   static notifyReconnection(contactName: string): void
   static notifyNewMessage(contactName: string, message: string): void
+  static notifyMessageSent(): void
   static notifyConnectionEstablished(contactName: string): void
   
   // Inicializar sistema
@@ -165,13 +173,14 @@ useEffect(() => {
     // Mensagem recebida - sempre tocar som
     NotificationManager.playMessageSound();
     
-    // Notificação visual apenas se janela não estiver em foco
-    if (!document.hasFocus()) {
-      NotificationManager.notifyNewMessage(contactName, lastMessage.text);
-    }
+    // Notificação visual (mobile: sempre, desktop: apenas em background)
+    NotificationManager.notifyNewMessage(contactName, lastMessage.text);
   } else if (lastMessage?.sender === 'me') {
     // Mensagem enviada - tocar som
     NotificationManager.playMessageSound();
+    
+    // Notificação visual apenas em mobile
+    NotificationManager.notifyMessageSent();
   }
 }, [messages]);
 ```
@@ -188,7 +197,9 @@ useEffect(() => {
 
 ### Foco da Janela
 - Mensagens **sempre** tocam som (enviadas e recebidas)
-- Notificações visuais apenas quando janela não está em foco
+- Notificações visuais:
+  - **Mobile:** Sempre exibem (independente do foco)
+  - **Desktop:** Apenas quando janela não está em foco
 - Reconexões e conexões sempre notificam (visual + som)
 
 ### Ícone
@@ -209,16 +220,36 @@ useEffect(() => {
 - Notificações funcionam apenas em PWA instalado
 - Som pode não funcionar em modo silencioso
 - Requer interação do usuário antes de tocar som
+- Notificações aparecem na central de notificações
 
 **Android:**
-- Notificações funcionam em navegador e PWA
-- Som funciona normalmente
+- ✅ Notificações funcionam em navegador e PWA
+- ✅ Som funciona normalmente
+- ✅ Notificações aparecem mesmo com app aberto
+- ✅ Suporte completo a notificações do sistema
 - Pode ser bloqueado por configurações do sistema
 
 **Desktop:**
 - Notificações funcionam em todos os navegadores modernos
 - Som funciona sem restrições
+- Notificações apenas quando janela não está em foco
 - Pode ser bloqueado por configurações do SO
+
+### Comportamento Mobile vs Desktop
+
+**Mobile (Android/iOS):**
+- Notificações **sempre** aparecem (mesmo com app aberto)
+- Mensagens enviadas mostram confirmação visual
+- Notificações vão para a central do sistema
+- Clique na notificação abre/foca o app
+- Som pode ser afetado por modo silencioso
+
+**Desktop (Windows/Mac/Linux):**
+- Notificações apenas quando app em background
+- Mensagens enviadas não mostram notificação visual
+- Notificações aparecem no canto da tela
+- Clique na notificação foca a janela
+- Som sempre funciona (se volume ativo)
 
 ## Testes
 

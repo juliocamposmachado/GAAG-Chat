@@ -92,3 +92,31 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
+// Manipular cliques em notificações
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notificação clicada:', event.notification.tag);
+  event.notification.close();
+
+  // Focar ou abrir a janela do app
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Se já existe uma janela aberta, focar nela
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Caso contrário, abrir nova janela
+        if (clients.openWindow) {
+          return clients.openWindow('/');
+        }
+      })
+  );
+});
+
+// Manipular fechamento de notificações
+self.addEventListener('notificationclose', (event) => {
+  console.log('[Service Worker] Notificação fechada:', event.notification.tag);
+});

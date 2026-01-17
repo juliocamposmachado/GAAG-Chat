@@ -3,6 +3,11 @@
 export class NotificationManager {
   private static hasPermission = false;
 
+  // Detectar se é dispositivo móvel
+  static isMobile(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   // Solicitar permissão para notificações
   static async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
@@ -131,8 +136,11 @@ export class NotificationManager {
 
   // Notificar nova mensagem
   static notifyNewMessage(contactName: string, message: string): void {
-    // Não notificar se a janela está em foco
-    if (document.hasFocus()) {
+    // Em mobile, sempre notificar
+    // Em desktop, apenas se janela não estiver em foco
+    const shouldNotify = this.isMobile() || !document.hasFocus();
+    
+    if (!shouldNotify) {
       return;
     }
 
@@ -146,6 +154,18 @@ export class NotificationManager {
   // Tocar som de mensagem (sem notificação visual)
   static playMessageSound(): void {
     this.playNotificationSound();
+  }
+
+  // Notificar mensagem enviada (apenas mobile)
+  static notifyMessageSent(): void {
+    // Apenas em mobile, mostrar notificação de confirmação
+    if (this.isMobile()) {
+      this.notify('Mensagem enviada', {
+        body: 'Sua mensagem foi enviada com sucesso',
+        tag: 'message-sent',
+        icon: '/favicon.png'
+      });
+    }
   }
 
   // Notificar conexão estabelecida

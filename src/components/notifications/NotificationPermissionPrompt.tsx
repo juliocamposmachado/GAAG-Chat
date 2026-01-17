@@ -80,7 +80,7 @@ export function NotificationPermissionPrompt() {
               <div>
                 <p className="text-sm font-medium">Nova Mensagem</p>
                 <p className="text-xs text-muted-foreground">
-                  Quando receber uma mensagem (som sempre, notificação visual apenas em segundo plano)
+                  Quando receber uma mensagem (som sempre, notificação sempre em mobile, apenas em background no desktop)
                 </p>
               </div>
             </div>
@@ -92,7 +92,7 @@ export function NotificationPermissionPrompt() {
               <div>
                 <p className="text-sm font-medium">Mensagem Enviada</p>
                 <p className="text-xs text-muted-foreground">
-                  Quando você enviar uma mensagem (apenas som como feedback)
+                  Quando você enviar uma mensagem (som sempre, notificação apenas em mobile)
                 </p>
               </div>
             </div>

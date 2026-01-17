@@ -41,7 +41,9 @@ NotificationManager.notifyConnectionEstablished(contactName);
 
 **Comportamento:**
 - ✅ Som: **SEMPRE** toca (dois bipes)
-- ⚠️ Notificação Visual: **APENAS** se janela não estiver em foco
+- ⚠️ Notificação Visual: 
+  - **Mobile:** **SEMPRE** aparece (mesmo com app aberto)
+  - **Desktop:** **APENAS** se janela não estiver em foco
   - Título: "Nova mensagem de [Nome]"
   - Corpo: Prévia da mensagem (até 50 caracteres)
 
@@ -51,16 +53,15 @@ if (lastMessage.sender === 'peer') {
   // Som sempre toca
   NotificationManager.playMessageSound();
   
-  // Notificação visual apenas em background
-  if (!document.hasFocus()) {
-    NotificationManager.notifyNewMessage(contactName, lastMessage.text);
-  }
+  // Notificação visual (mobile: sempre, desktop: apenas em background)
+  NotificationManager.notifyNewMessage(contactName, lastMessage.text);
 }
 ```
 
 **Razão:** 
 - Som fornece feedback imediato mesmo quando usuário está digitando
-- Notificação visual evitada quando usuário já está vendo a conversa
+- Mobile: Notificação sempre aparece para garantir visibilidade
+- Desktop: Notificação evitada quando usuário já está vendo a conversa
 
 ---
 
@@ -69,31 +70,37 @@ if (lastMessage.sender === 'peer') {
 
 **Comportamento:**
 - ✅ Som: **SEMPRE** toca (dois bipes)
-- ❌ Notificação Visual: **NÃO** exibe
-- 💡 Propósito: Feedback sonoro de confirmação de envio
+- ⚠️ Notificação Visual:
+  - **Mobile:** Exibe "Mensagem enviada - Sua mensagem foi enviada com sucesso"
+  - **Desktop:** **NÃO** exibe
+- 💡 Propósito: Feedback sonoro + visual (mobile) de confirmação de envio
 
 **Código:**
 ```typescript
 if (lastMessage.sender === 'me') {
   // Som de confirmação
   NotificationManager.playMessageSound();
+  
+  // Notificação visual apenas em mobile
+  NotificationManager.notifyMessageSent();
 }
 ```
 
 **Razão:**
 - Feedback auditivo confirma que mensagem foi enviada
-- Usuário não precisa de notificação visual (ele mesmo enviou)
+- Mobile: Notificação visual adicional para confirmar envio
+- Desktop: Usuário não precisa de notificação visual (ele mesmo enviou e está vendo)
 
 ---
 
 ## Tabela Resumo
 
-| Evento | Som | Notificação Visual | Condição |
-|--------|-----|-------------------|----------|
-| Reconexão | ✅ Sempre | ✅ Sempre | - |
-| Conexão Estabelecida | ✅ Sempre | ✅ Sempre | - |
-| Mensagem Recebida | ✅ Sempre | ⚠️ Apenas em background | `!document.hasFocus()` |
-| Mensagem Enviada | ✅ Sempre | ❌ Nunca | - |
+| Evento | Som | Notificação Visual (Mobile) | Notificação Visual (Desktop) | Condição |
+|--------|-----|---------------------------|----------------------------|----------|
+| Reconexão | ✅ Sempre | ✅ Sempre | ✅ Sempre | - |
+| Conexão Estabelecida | ✅ Sempre | ✅ Sempre | ✅ Sempre | - |
+| Mensagem Recebida | ✅ Sempre | ✅ Sempre | ⚠️ Apenas em background | Mobile: sempre, Desktop: `!document.hasFocus()` |
+| Mensagem Enviada | ✅ Sempre | ✅ Sempre | ❌ Nunca | Mobile: sempre, Desktop: nunca |
 
 ---
 
@@ -143,20 +150,30 @@ oscillator2.frequency.value = 1000;
 
 ## Experiência do Usuário
 
-### Cenário 1: Usuário Ativo no Chat
-**Situação:** Janela em foco, conversando ativamente
+### Cenário 1: Usuário Ativo no Chat (Desktop)
+**Situação:** Janela em foco, conversando ativamente no desktop
 
 **Comportamento:**
-- Recebe mensagem → Som toca ✅
-- Envia mensagem → Som toca ✅
-- Notificações visuais → Não aparecem ❌
+- Recebe mensagem → Som toca ✅, Notificação visual não aparece ❌
+- Envia mensagem → Som toca ✅, Notificação visual não aparece ❌
 
 **Razão:** Usuário já está vendo a conversa, não precisa de notificação visual
 
 ---
 
-### Cenário 2: Usuário em Outra Aba
-**Situação:** GAAG Chat aberto mas em aba de background
+### Cenário 2: Usuário Ativo no Chat (Mobile)
+**Situação:** App aberto e em foco no dispositivo móvel
+
+**Comportamento:**
+- Recebe mensagem → Som toca ✅ + Notificação visual aparece ✅
+- Envia mensagem → Som toca ✅ + Notificação visual "Mensagem enviada" ✅
+
+**Razão:** Em mobile, notificações sempre aparecem para garantir visibilidade
+
+---
+
+### Cenário 3: Usuário em Outra Aba (Desktop)
+**Situação:** GAAG Chat aberto mas em aba de background no desktop
 
 **Comportamento:**
 - Recebe mensagem → Som toca ✅ + Notificação visual ✅
@@ -166,7 +183,19 @@ oscillator2.frequency.value = 1000;
 
 ---
 
-### Cenário 3: Usuário Reconectando
+### Cenário 4: App em Background (Mobile)
+**Situação:** GAAG Chat minimizado ou em segundo plano no mobile
+
+**Comportamento:**
+- Recebe mensagem → Som toca ✅ + Notificação na central do sistema ✅
+- Notificação persiste na central de notificações
+- Clique na notificação abre o app
+
+**Razão:** Notificações do sistema garantem que usuário veja mensagens mesmo com app fechado
+
+---
+
+### Cenário 5: Usuário Reconectando
 **Situação:** Clica em "Conectar" em contato salvo
 
 **Comportamento:**
