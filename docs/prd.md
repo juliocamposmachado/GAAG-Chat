@@ -30,20 +30,28 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - **Salvamento de conversas com nome personalizado no LocalStorage**
 - **Manutenção do vínculo entre usuários para futuras conversas**
 - **Armazenamento de credenciais de conexão para reconexão**
+- **Armazenamento de mensagens de áudio no IndexedDB**
 
 ### 2.3 Segurança
 - Criptografia ponta-a-ponta obrigatória (nativa do WebRTC)
-- Chaves geradas localmente\n- Sem login, e-mail, telefone ou rastreamento
+- Chaves geradas localmente
+- Sem login, e-mail, telefone ou rastreamento
 - Identidade baseada em QR Code, código temporário ou link P2P
-\n## 3. Funcionalidades Principais
+
+## 3. Funcionalidades Principais
 
 ### 3.1 Comunicação
 - Mensagens de texto
+- **Mensagens de áudio gravadas pelo usuário**
+- **Gravação de áudio via MediaRecorder API**
+- **Envio de arquivos de áudio via DataChannel**
+- **Reprodução de mensagens de áudio recebidas**
+- **Indicador visual de duração do áudio**
+- **Controles de reprodução (play, pause, barra de progresso)**
 - **Ligações de voz P2P em tempo real**
 - **Controles de chamada de voz (iniciar, encerrar, mudo, alto-falante)**
 - **Indicador visual de chamada de voz ativa**
 - **Notificação sonora de chamada de voz recebida**
-- Mensagens de voz (opcional)
 - Chamadas de áudio (opcional)
 - Chamadas de vídeo (opcional)
 - Indicador de digitando
@@ -59,29 +67,44 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 ### 3.3 Gestão de Conversas\n- Lista de contatos diretos
 - Conversas ativas
 - Histórico de mensagens salvo localmente
+- **Histórico de mensagens de áudio salvo localmente**
 - **Nomeação personalizada de conversas pelo usuário**
 - **Persistência de todas as conversas no LocalStorage**
 - **Manutenção do histórico completo de cada conversa nomeada**
 - Exportação/importação manual de dados
-
-### 3.4 Persistência de Vínculos
-- **Armazenamento de informações de conexão (peer ID, chaves de sessão) no LocalStorage**\n- **Recuperação automática de conversas anteriores ao reabrir o aplicativo**
+\n### 3.4 Persistência de Vínculos\n- **Armazenamento de informações de conexão (peer ID, chaves de sessão) no LocalStorage**
+- **Recuperação automática de conversas anteriores ao reabrir o aplicativo**
 - **Preservação do vínculo entre usuários mesmo após desconexão temporária**
 - **Lista de conversas salvas acessível na interface principal**
-\n### 3.5 Reconexão
-- **Botão Reconectar disponível em cada conversa salva**\n- **Utilização das credenciais armazenadas localmente para restabelecer conexão**
+
+### 3.5 Reconexão
+- **Botão Reconectar disponível em cada conversa salva**
+- **Utilização das credenciais armazenadas localmente para restabelecer conexão**
 - **Notificação sonora no dispositivo ao reconectar com sucesso**
 - **Notificação visual indicando status de reconexão**
 - **Tentativa automática de reconexão usando dados salvos**
-
-### 3.6 Ligações de Voz
+\n### 3.6 Ligações de Voz
 - **Botão de iniciar ligação de voz na interface de chat**
 - **Estabelecimento de canal de áudio via WebRTC (getUserMedia + RTCPeerConnection)**
-- **Controles durante chamada: mudo, desligar, alto-falante**\n- **Indicador de duração da chamada**
+- **Controles durante chamada: mudo, desligar, alto-falante**
+- **Indicador de duração da chamada**
 - **Notificação sonora ao receber chamada de voz**
 - **Opção de aceitar ou recusar chamada recebida**
 - **Feedback visual de status da chamada (conectando, ativa, encerrada)**
 - **Registro de histórico de chamadas no LocalStorage**
+
+### 3.7 Mensagens de Áudio
+- **Botão de gravar áudio na interface de chat**
+- **Captura de áudio via getUserMedia (apenas microfone)**
+- **Gravação usando MediaRecorder API**
+- **Indicador visual durante gravação (tempo decorrido, animação)**
+- **Botões de controle: iniciar gravação, pausar, cancelar, enviar**
+- **Pré-visualização do áudio antes de enviar**\n- **Compressão de áudio para otimizar transferência P2P**
+- **Envio do arquivo de áudio via DataChannel em chunks**
+- **Exibição de mensagem de áudio no histórico com ícone distintivo**
+- **Player de áudio integrado para reprodução**
+- **Controles de reprodução: play/pause, barra de progresso, indicador de tempo**
+- **Armazenamento de áudios no IndexedDB com referência na conversa**
 
 ## 4. Interface do Usuário
 
@@ -99,48 +122,48 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - **Tela de lista de conversas salvas com nomes personalizados**
 - **Opção para nomear/renomear conversas**
 - Área de input de mensagens
+- **Botão de gravação de áudio no campo de mensagem**
+- **Interface de gravação de áudio com controles**
+- **Player de áudio integrado nas mensagens**
 - **Controles de ligação de voz (botão iniciar, aceitar, recusar, encerrar)**
 - **Painel de chamada de voz ativa com controles (mudo, alto-falante, desligar)**
 - Botões de ação (Gerar Oferta, Aceitar Oferta, Finalizar Conexão, Salvar Conversa, **Reconectar**)
 
-### 4.3 Notificações
-- **Notificação sonora ao reconectar com sucesso**
+### 4.3 Notificações\n- **Notificação sonora ao reconectar com sucesso**
 - **Notificação sonora ao enviar mensagem**
 - **Notificação sonora ao receber mensagem**
-- **Notificação sonora ao receber chamada de voz**\n- **Notificação visual de status de conexão**
-- **Feedback visual durante tentativa de reconexão**
+- **Notificação sonora ao receber mensagem de áudio**
+- **Notificação sonora ao receber chamada de voz**
+- **Notificação visual de status de conexão**\n- **Feedback visual durante tentativa de reconexão**
 - **Notificação visual de chamada de voz recebida**
 - **Indicador visual de chamada de voz em andamento**
+- **Feedback visual durante gravação de áudio**
 
 ## 5. Limitações Técnicas
 
 ### 5.1 Requisitos de Funcionamento
 - Ambos os usuários devem estar online simultaneamente para troca de mensagens em tempo real
+- **Envio de mensagens de áudio requer ambos os usuários online e conectados**
 - **Ligações de voz requerem ambos os usuários online e conectados**
 - Mensagens não são entregues se usuário estiver offline
-- Não há fila de mensagens em servidor
-- Comunicação depende de configuração NAT/firewall
-- **Histórico e vínculos são mantidos localmente mesmo quando offline**
-- **Reconexão depende da disponibilidade do outro usuário online**
-- **Qualidade de áudio depende da largura de banda e latência da conexão P2P**
+- Não há fila de mensagens em servidor\n- Comunicação depende de configuração NAT/firewall\n- **Histórico e vínculos são mantidos localmente mesmo quando offline**
+- **Reconexão depende da disponibilidade do outro usuário online**\n- **Qualidade de áudio depende da largura de banda e latência da conexão P2P**
+- **Tamanho de mensagens de áudio limitado pela capacidade do DataChannel**
 
-### 5.2 Escopo
-- Não é substituto completo de mensageiros corporativos
+### 5.2 Escopo\n- Não é substituto completo de mensageiros corporativos
 - É um mensageiro descentralizado focado em privacidade
-- Controle total do usuário sobre seus dados\n
-## 6. Plataformas Suportadas
-- **Web App (PWA - Progressive Web App instalável)**
-- **Android (via WebView ou Flutter)**
+- Controle total do usuário sobre seus dados
+
+## 6. Plataformas Suportadas\n- **Web App (PWA - Progressive Web App instalável)**\n- **Android (via WebView ou Flutter)**
 - **Desktop (Electron ou Tauri)**
 
 ### 6.1 Requisitos de Instalação
 - **Configuração de PWA com manifest.json**
 - **Service Worker para funcionamento offline**
-- **Ícones de aplicativo em múltiplas resoluções**
-- **Suporte a instalação via navegador (Add to Home Screen)**
+- **Ícones de aplicativo em múltiplas resoluções**\n- **Suporte a instalação via navegador (Add to Home Screen)**
 - **Capacidade de executar como aplicativo standalone**
 - **Permissões para notificações sonoras e visuais**
-- **Permissões para acesso ao microfone (para ligações de voz)**
+- **Permissões para acesso ao microfone (para ligações de voz e gravação de áudio)**
 \n## 7. Código Base Fornecido
 
 O usuário forneceu código HTML/JavaScript funcional implementando:
@@ -161,3 +184,4 @@ O usuário forneceu código HTML/JavaScript funcional implementando:
 - **Instalabilidade como aplicativo nativo**
 - **Reconexão facilitada com credenciais salvas**
 - **Feedback sonoro e visual para melhor experiência do usuário**\n- **Comunicação de voz P2P sem intermediários**
+- **Suporte a mensagens de áudio gravadas e reproduzidas localmente**

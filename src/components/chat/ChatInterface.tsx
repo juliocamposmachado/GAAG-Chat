@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageBubble } from './MessageBubble';
+import { VoiceMessageRecorder } from './VoiceMessageRecorder';
 import { Send, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Message, ConnectionState } from '@/types';
@@ -9,6 +10,7 @@ import type { Message, ConnectionState } from '@/types';
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (text: string) => void;
+  onSendAudioMessage?: (audioBlob: Blob, duration: number) => void;
   connectionState: ConnectionState;
   peerTyping?: boolean;
   onTyping?: (isTyping: boolean) => void;
@@ -17,12 +19,14 @@ interface ChatInterfaceProps {
 export function ChatInterface({
   messages,
   onSendMessage,
+  onSendAudioMessage,
   connectionState,
   peerTyping = false,
   onTyping
 }: ChatInterfaceProps) {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -125,26 +129,50 @@ export function ChatInterface({
       {/* Área de input */}
       <div className="border-t border-border bg-card p-4">
         <div className="flex gap-2">
-          <Textarea
-            value={inputText}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
-            disabled={!isConnected}
-            className={cn(
-              'min-h-[44px] max-h-[120px] resize-none',
-              !isConnected && 'opacity-50 cursor-not-allowed'
-            )}
-            rows={1}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!inputText.trim() || !isConnected}
-            size="icon"
-            className="shrink-0 h-[44px] w-[44px]"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          {isRecordingVoice ? (
+            <VoiceMessageRecorder
+              onSend={(audioBlob, duration) => {
+                if (onSendAudioMessage) {
+                  onSendAudioMessage(audioBlob, duration);
+                }
+                setIsRecordingVoice(false);
+              }}
+              onCancel={() => setIsRecordingVoice(false)}
+            />
+          ) : (
+            <>
+              <Textarea
+                value={inputText}
+                onChange={(e) => handleInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
+                disabled={!isConnected}
+                className={cn(
+                  'min-h-[44px] max-h-[120px] resize-none',
+                  !isConnected && 'opacity-50 cursor-not-allowed'
+                )}
+                rows={1}
+              />
+              
+              {/* Botão de mensagem de voz */}
+              {onSendAudioMessage && (
+                <VoiceMessageRecorder
+                  onSend={(audioBlob, duration) => {
+                    onSendAudioMessage(audioBlob, duration);
+                  }}
+                />
+              )}
+              
+              <Button
+                onClick={handleSend}
+                disabled={!inputText.trim() || !isConnected}
+                size="icon"
+                className="shrink-0 h-[44px] w-[44px]"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

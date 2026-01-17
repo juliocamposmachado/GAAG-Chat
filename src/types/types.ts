@@ -6,6 +6,9 @@ export interface Message {
   sender: 'me' | 'peer';
   timestamp: number;
   delivered?: boolean;
+  type?: 'text' | 'audio'; // Tipo de mensagem
+  audioData?: string; // Base64 encoded audio para mensagens de áudio
+  audioDuration?: number; // Duração do áudio em segundos
 }
 
 export interface Contact {

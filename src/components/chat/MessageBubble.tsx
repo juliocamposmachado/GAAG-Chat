@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { AudioMessagePlayer } from './AudioMessagePlayer';
 import type { Message } from '@/types';
 
 interface MessageBubbleProps {
@@ -12,6 +13,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     minute: '2-digit'
   });
 
+  const isAudioMessage = message.type === 'audio' && message.audioData && message.audioDuration;
+
   return (
     <div
       className={cn(
@@ -21,26 +24,50 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     >
       <div
         className={cn(
-          'max-w-[75%] xl:max-w-[60%] rounded-2xl px-4 py-2.5 shadow-sm',
+          'max-w-[75%] xl:max-w-[60%] rounded-2xl shadow-sm',
+          isAudioMessage ? 'p-0' : 'px-4 py-2.5',
           isMe
             ? 'bg-primary text-primary-foreground rounded-br-sm'
             : 'bg-card text-card-foreground border border-border rounded-bl-sm'
         )}
       >
-        <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
-          {message.text}
-        </p>
-        <div
-          className={cn(
-            'flex items-center gap-1 mt-1 text-xs',
-            isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
-          )}
-        >
-          <span>{time}</span>
-          {isMe && message.delivered && (
-            <span className="ml-1">✓✓</span>
-          )}
-        </div>
+        {isAudioMessage ? (
+          <div className="p-2">
+            <AudioMessagePlayer
+              audioData={message.audioData!}
+              duration={message.audioDuration!}
+              sender={message.sender}
+            />
+            <div
+              className={cn(
+                'flex items-center gap-1 mt-1 text-xs px-2',
+                isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+              )}
+            >
+              <span>{time}</span>
+              {isMe && message.delivered && (
+                <span className="ml-1">✓✓</span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+              {message.text}
+            </p>
+            <div
+              className={cn(
+                'flex items-center gap-1 mt-1 text-xs',
+                isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+              )}
+            >
+              <span>{time}</span>
+              {isMe && message.delivered && (
+                <span className="ml-1">✓✓</span>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

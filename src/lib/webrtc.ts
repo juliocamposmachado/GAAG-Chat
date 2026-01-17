@@ -8,6 +8,7 @@ export class WebRTCManager {
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
   private onMessageCallback: ((message: string) => void) | null = null;
+  private onAudioMessageCallback: ((audioData: string, duration: number) => void) | null = null;
   private onStateChangeCallback: ((state: ConnectionState) => void) | null = null;
   private onTypingCallback: ((isTyping: boolean) => void) | null = null;
   private onCallStateCallback: ((state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => void) | null = null;
@@ -91,9 +92,11 @@ export class WebRTCManager {
     this.dataChannel.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('[WebRTC] Mensagem recebida:', data);
+        console.log('[WebRTC] Mensagem recebida:', data.type);
         if (data.type === 'message') {
           this.onMessageCallback?.(data.text);
+        } else if (data.type === 'audio-message') {
+          this.onAudioMessageCallback?.(data.audioData, data.duration);
         } else if (data.type === 'typing') {
           this.onTypingCallback?.(data.isTyping);
         } else if (data.type === 'call-request') {
@@ -222,8 +225,55 @@ export class WebRTCManager {
     }
   }
 
+  // Enviar mensagem de áudio
+  async sendAudioMessage(audioBlob: Blob, duration: number): Promise<boolean> {
+    if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+      console.warn('[WebRTC] DataChannel não está aberto para enviar áudio');
+      return false;
+    }
+
+    try {
+      console.log('[WebRTC] Enviando mensagem de áudio, tamanho:', audioBlob.size, 'bytes');
+      
+      // Converter Blob para base64
+      const base64Audio = await this.blobToBase64(audioBlob);
+      
+      // Enviar mensagem de áudio
+      this.dataChannel.send(JSON.stringify({ 
+        type: 'audio-message', 
+        audioData: base64Audio,
+        duration: duration
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('[WebRTC] Erro ao enviar mensagem de áudio:', error);
+      return false;
+    }
+  }
+
+  // Converter Blob para base64
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Falha ao converter blob para base64'));
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   onMessage(callback: (message: string) => void): void {
     this.onMessageCallback = callback;
+  }
+
+  onAudioMessage(callback: (audioData: string, duration: number) => void): void {
+    this.onAudioMessageCallback = callback;
   }
 
   onStateChange(callback: (state: ConnectionState) => void): void {

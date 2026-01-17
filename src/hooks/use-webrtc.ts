@@ -51,6 +51,24 @@ export function useWebRTC(contactId?: string) {
       setPeerTyping(isTyping);
     };
 
+    const handleAudioMessage = (audioData: string, duration: number) => {
+      if (!contactId) return;
+
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        text: '[Mensagem de áudio]',
+        sender: 'peer',
+        timestamp: Date.now(),
+        delivered: true,
+        type: 'audio',
+        audioData,
+        audioDuration: duration
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
+      StorageManager.addMessage(contactId, newMessage);
+    };
+
     const handleCallState = (state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => {
       console.log('Call State Changed:', state);
       setCallState(state);
@@ -63,6 +81,7 @@ export function useWebRTC(contactId?: string) {
 
     webrtc.onStateChange(handleStateChange);
     webrtc.onMessage(handleMessage);
+    webrtc.onAudioMessage(handleAudioMessage);
     webrtc.onTyping(handleTyping);
     webrtc.onCallState(handleCallState);
     webrtc.onRemoteStream(handleRemoteStream);
@@ -99,6 +118,35 @@ export function useWebRTC(contactId?: string) {
   const sendTypingIndicator = useCallback((isTyping: boolean) => {
     webrtc.sendTypingIndicator(isTyping);
   }, []);
+
+  const sendAudioMessage = useCallback(async (audioBlob: Blob, duration: number) => {
+    if (!contactId) return;
+
+    const success = await webrtc.sendAudioMessage(audioBlob, duration);
+    
+    if (success) {
+      // Converter blob para base64 para salvar localmente
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Audio = reader.result as string;
+        
+        const newMessage: Message = {
+          id: `${Date.now()}-${Math.random()}`,
+          text: '[Mensagem de áudio]',
+          sender: 'me',
+          timestamp: Date.now(),
+          delivered: true,
+          type: 'audio',
+          audioData: base64Audio,
+          audioDuration: duration
+        };
+
+        setMessages((prev) => [...prev, newMessage]);
+        StorageManager.addMessage(contactId, newMessage);
+      };
+      reader.readAsDataURL(audioBlob);
+    }
+  }, [contactId]);
 
   const createOffer = useCallback(async () => {
     try {
@@ -178,6 +226,7 @@ export function useWebRTC(contactId?: string) {
     callState,
     remoteStream,
     sendMessage,
+    sendAudioMessage,
     sendTypingIndicator,
     createOffer,
     acceptOffer,
