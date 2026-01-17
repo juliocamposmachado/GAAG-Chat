@@ -142,10 +142,57 @@ export function ChatInterface({
             onCancel={() => setIsRecordingVoice(false)}
           />
         ) : (
-          <div className="flex gap-2 items-end">
-            {/* Botões de mídia */}
+          <div className="flex flex-col gap-2">
+            {/* Linha principal: Textarea + Botões de ação */}
+            <div className="flex gap-2 items-end">
+              {/* Botões de mídia - Desktop apenas */}
+              {onSendMediaMessage && isConnected && (
+                <div className="hidden lg:flex flex-shrink-0">
+                  <MediaMessageUploader
+                    onSend={(file, mediaType) => {
+                      onSendMediaMessage(file, mediaType);
+                    }}
+                  />
+                </div>
+              )}
+              
+              <Textarea
+                value={inputText}
+                onChange={(e) => handleInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
+                disabled={!isConnected}
+                className={cn(
+                  'min-h-[44px] max-h-[120px] resize-none flex-1',
+                  !isConnected && 'opacity-50 cursor-not-allowed'
+                )}
+                rows={1}
+              />
+              
+              {/* Botão de mensagem de voz */}
+              {onSendAudioMessage && isConnected && (
+                <div className="flex-shrink-0">
+                  <VoiceMessageRecorder
+                    onSend={(audioBlob, duration) => {
+                      onSendAudioMessage(audioBlob, duration);
+                    }}
+                  />
+                </div>
+              )}
+              
+              <Button
+                onClick={handleSend}
+                disabled={!inputText.trim() || !isConnected}
+                size="icon"
+                className="shrink-0 h-[44px] w-[44px]"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Botões de mídia - Mobile apenas (abaixo do input) */}
             {onSendMediaMessage && isConnected && (
-              <div className="flex-shrink-0">
+              <div className="flex lg:hidden justify-start">
                 <MediaMessageUploader
                   onSend={(file, mediaType) => {
                     onSendMediaMessage(file, mediaType);
@@ -153,39 +200,6 @@ export function ChatInterface({
                 />
               </div>
             )}
-            
-            <Textarea
-              value={inputText}
-              onChange={(e) => handleInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
-              disabled={!isConnected}
-              className={cn(
-                'min-h-[44px] max-h-[120px] resize-none flex-1',
-                !isConnected && 'opacity-50 cursor-not-allowed'
-              )}
-              rows={1}
-            />
-            
-            {/* Botão de mensagem de voz */}
-            {onSendAudioMessage && isConnected && (
-              <div className="flex-shrink-0">
-                <VoiceMessageRecorder
-                  onSend={(audioBlob, duration) => {
-                    onSendAudioMessage(audioBlob, duration);
-                  }}
-                />
-              </div>
-            )}
-            
-            <Button
-              onClick={handleSend}
-              disabled={!inputText.trim() || !isConnected}
-              size="icon"
-              className="shrink-0 h-[44px] w-[44px]"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
           </div>
         )}
       </div>
