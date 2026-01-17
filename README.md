@@ -1,8 +1,8 @@
-# P2P Chat - Aplicativo de Comunicação Descentralizada
+# GAAG Chat - Aplicativo de Comunicação Descentralizada
 
 ## 📱 Visão Geral
 
-Aplicativo de comunicação peer-to-peer (P2P) baseado em WebRTC que permite conversas privadas e descentralizadas entre usuários, sem armazenamento em nuvem ou servidores intermediários.
+Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas privadas e descentralizadas entre usuários, sem armazenamento em nuvem ou servidores intermediários.
 
 ## ✨ Características Principais
 
@@ -33,7 +33,7 @@ Aplicativo de comunicação peer-to-peer (P2P) baseado em WebRTC que permite con
 4. Clique em "Aceitar Conexão"
 5. Copie o código de resposta gerado
 6. Envie o código de resposta para o Usuário A
-7. Clique em "Ir para o Chat"
+7. Aguarde a conexão ser estabelecida (redirecionamento automático)
 
 ### Durante o Chat
 
@@ -46,7 +46,7 @@ Aplicativo de comunicação peer-to-peer (P2P) baseado em WebRTC que permite con
 ## 🔧 Tecnologias
 
 - **React + TypeScript**: Framework e tipagem
-- **WebRTC**: Comunicação P2P
+- **WebRTC**: Comunicação peer-to-peer
 - **Tailwind CSS**: Estilização
 - **shadcn/ui**: Componentes de UI
 - **localStorage**: Persistência local
@@ -115,6 +115,16 @@ npm run lint
 
 ---
 
+## 👨‍💻 Créditos
+
+**Projeto Visionado Por:**  
+Julio Cesar Campos Machado - Programador Full Stack  
+🔗 [likelook.wixsite.com/solutions](https://likelook.wixsite.com/solutions)
+
+**like look solutions**
+
+---
+
 ## Project Directory
 
 ```
@@ -172,4 +182,4 @@ Example:
 
 ## 📄 Licença
 
-© 2026 P2P Chat - Privacidade e segurança em primeiro lugar
+© 2026 GAAG Chat - Privacidade e segurança em primeiro lugar

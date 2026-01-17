@@ -1,4 +1,4 @@
-// Gerenciador de conexão WebRTC P2P
+// Gerenciador de conexão WebRTC GAAG
 
 import type { ConnectionState } from '@/types';
 

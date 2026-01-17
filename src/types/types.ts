@@ -1,4 +1,4 @@
-// Tipos para WebRTC e mensagens P2P
+// Tipos para WebRTC e mensagens GAAG
 
 export interface Message {
   id: string;

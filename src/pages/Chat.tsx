@@ -109,7 +109,7 @@ export default function Chat() {
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-base font-semibold">Contato P2P</h1>
+                <h1 className="text-base font-semibold">Contato GAAG</h1>
                 <p className="text-xs text-muted-foreground">
                   {connectionState === 'connected' && 'Online'}
                   {connectionState === 'connecting' && 'Conectando...'}

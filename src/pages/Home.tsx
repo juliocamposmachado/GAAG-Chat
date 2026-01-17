@@ -52,7 +52,7 @@ export default function Home() {
       StorageManager.setCurrentSession(newContactId);
       StorageManager.saveChatSession({
         contactId: newContactId,
-        contactName: 'Contato P2P',
+        contactName: 'Contato GAAG',
         messages: [],
         createdAt: Date.now()
       });
@@ -84,7 +84,7 @@ export default function Home() {
       StorageManager.setCurrentSession(newContactId);
       StorageManager.saveChatSession({
         contactId: newContactId,
-        contactName: 'Contato P2P',
+        contactName: 'Contato GAAG',
         messages: [],
         createdAt: Date.now()
       });
@@ -148,7 +148,7 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">P2P Chat</h1>
+                <h1 className="text-xl font-bold">GAAG Chat</h1>
                 <p className="text-xs text-muted-foreground">Comunicação privada e descentralizada</p>
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function Home() {
                   <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">
-                      {connectionState === 'connecting' && 'Estabelecendo conexão P2P...'}
+                      {connectionState === 'connecting' && 'Estabelecendo conexão GAAG...'}
                       {connectionState === 'connected' && 'Conectado! Redirecionando...'}
                       {connectionState === 'failed' && 'Falha na conexão. Tente novamente.'}
                       {connectionState === 'disconnected' && 'Aguardando conexão...'}
@@ -271,11 +271,30 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-4">
+      <footer className="border-t border-border bg-card py-6">
         <div className="container mx-auto px-4">
-          <p className="text-center text-xs text-muted-foreground">
-            © 2026 P2P Chat • Privacidade e segurança em primeiro lugar
-          </p>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground">like look solutions</span>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>Projeto Visionado Por</p>
+              <p className="font-medium text-foreground">
+                Julio Cesar Campos Machado - Programador Full Stack
+              </p>
+              <a 
+                href="https://likelook.wixsite.com/solutions" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-block mt-1"
+              >
+                likelook.wixsite.com/solutions
+              </a>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              © 2026 GAAG Chat • Privacidade e segurança em primeiro lugar
+            </p>
+          </div>
         </div>
       </footer>
     </div>
