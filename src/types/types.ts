@@ -16,6 +16,16 @@ export interface Contact {
   isOnline: boolean;
 }
 
+export interface SavedContact {
+  id: string;
+  name: string;
+  offerCode?: string;
+  answerCode?: string;
+  myRole: 'initiator' | 'receiver'; // Quem iniciou a conexão
+  createdAt: number;
+  lastConnected?: number;
+}
+
 export interface ConnectionOffer {
   sdp: string;
   type: 'offer' | 'answer';

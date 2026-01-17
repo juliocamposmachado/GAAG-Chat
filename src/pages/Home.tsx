@@ -6,10 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { QRCodeGenerator } from '@/components/connection/QRCodeGenerator';
 import { OfferAcceptor } from '@/components/connection/OfferAcceptor';
+import { SavedContactsList } from '@/components/connection/SavedContactsList';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
 import { Shield, MessageCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { SavedContact } from '@/types';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -24,10 +26,33 @@ export default function Home() {
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [contactId, setContactId] = useState<string>('');
   const [waitingForConnection, setWaitingForConnection] = useState(false);
+  const [savedContacts, setSavedContacts] = useState<SavedContact[]>([]);
+  const [currentRole, setCurrentRole] = useState<'initiator' | 'receiver'>('initiator');
+  const [currentOfferCode, setCurrentOfferCode] = useState('');
+  const [currentAnswerCode, setCurrentAnswerCode] = useState('');
+
+  // Carregar contatos salvos
+  useEffect(() => {
+    const contacts = StorageManager.getAllSavedContacts();
+    setSavedContacts(contacts);
+  }, []);
 
   // Monitorar estado de conexão e redirecionar quando conectado
   useEffect(() => {
     if (connectionState === 'connected' && contactId && waitingForConnection) {
+      // Salvar contato com códigos de conexão
+      const savedContact: SavedContact = {
+        id: contactId,
+        name: 'Novo Contato',
+        offerCode: currentRole === 'initiator' ? currentOfferCode : undefined,
+        answerCode: currentRole === 'receiver' ? currentAnswerCode : undefined,
+        myRole: currentRole,
+        createdAt: Date.now(),
+        lastConnected: Date.now()
+      };
+      
+      StorageManager.saveSavedContact(savedContact);
+      
       toast({
         title: 'Conectado!',
         description: 'Redirecionando para o chat...'
@@ -37,13 +62,15 @@ export default function Home() {
         navigate('/chat');
       }, 500);
     }
-  }, [connectionState, contactId, waitingForConnection, navigate, toast]);
+  }, [connectionState, contactId, waitingForConnection, navigate, toast, currentRole, currentOfferCode, currentAnswerCode]);
 
   const handleGenerateOffer = async () => {
     setIsGenerating(true);
     try {
       const offer = await createOffer();
       setOfferData(offer);
+      setCurrentOfferCode(offer);
+      setCurrentRole('initiator');
       setShowAnswerInput(true);
       
       // Criar sessão de chat para o iniciador
@@ -52,7 +79,7 @@ export default function Home() {
       StorageManager.setCurrentSession(newContactId);
       StorageManager.saveChatSession({
         contactId: newContactId,
-        contactName: 'Contato GAAG',
+        contactName: 'Novo Contato',
         messages: [],
         createdAt: Date.now()
       });
@@ -77,6 +104,8 @@ export default function Home() {
     try {
       const answer = await acceptOffer(offerCode);
       setAnswerData(answer);
+      setCurrentAnswerCode(answer);
+      setCurrentRole('receiver');
       
       // Criar sessão de chat para o receptor
       const newContactId = `peer-${Date.now()}`;
@@ -84,7 +113,7 @@ export default function Home() {
       StorageManager.setCurrentSession(newContactId);
       StorageManager.saveChatSession({
         contactId: newContactId,
-        contactName: 'Contato GAAG',
+        contactName: 'Novo Contato',
         messages: [],
         createdAt: Date.now()
       });
@@ -137,6 +166,36 @@ export default function Home() {
     }
   };
 
+  const handleSelectSavedContact = async (contact: SavedContact) => {
+    toast({
+      title: 'Reconectando...',
+      description: `Estabelecendo conexão com ${contact.name}`
+    });
+
+    // Usar o contato salvo para reconectar
+    setContactId(contact.id);
+    StorageManager.setCurrentSession(contact.id);
+    StorageManager.updateSavedContactLastConnected(contact.id);
+
+    // Atualizar lista de contatos
+    const contacts = StorageManager.getAllSavedContacts();
+    setSavedContacts(contacts);
+
+    // Navegar para o chat
+    navigate('/chat');
+  };
+
+  const handleDeleteSavedContact = (contactId: string) => {
+    StorageManager.deleteSavedContact(contactId);
+    const contacts = StorageManager.getAllSavedContacts();
+    setSavedContacts(contacts);
+    
+    toast({
+      title: 'Contato excluído',
+      description: 'O contato foi removido da lista.'
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -159,6 +218,15 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
+          {/* Saved Contacts */}
+          {savedContacts.length > 0 && (
+            <SavedContactsList
+              contacts={savedContacts}
+              onSelectContact={handleSelectSavedContact}
+              onDeleteContact={handleDeleteSavedContact}
+            />
+          )}
+
           {/* Info Card */}
           <Card className="bg-accent border-accent-foreground/20">
             <CardContent className="pt-6">

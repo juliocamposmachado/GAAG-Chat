@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChatInterface } from '@/components/chat/ChatInterface';
+import { SaveContactDialog } from '@/components/chat/SaveContactDialog';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
-import { Shield, ArrowLeft, Download, Trash2 } from 'lucide-react';
+import { Shield, ArrowLeft, Download, Trash2, Edit, Save } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,12 +17,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Chat() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [contactId, setContactId] = useState<string | null>(null);
+  const [contactName, setContactName] = useState<string>('Novo Contato');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showRenameDialog, setShowRenameDialog] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const {
     connectionState,
@@ -40,6 +53,16 @@ export default function Chat() {
       return;
     }
     setContactId(currentSession);
+
+    // Carregar nome do contato
+    const session = StorageManager.getChatSession(currentSession);
+    if (session) {
+      setContactName(session.contactName);
+    }
+
+    // Verificar se já está salvo
+    const savedContact = StorageManager.getSavedContact(currentSession);
+    setIsSaved(!!savedContact);
   }, [navigate]);
 
   const handleDisconnect = () => {
@@ -58,7 +81,7 @@ export default function Chat() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `p2p-chat-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `gaag-chat-backup-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -75,6 +98,44 @@ export default function Chat() {
         variant: 'destructive'
       });
     }
+  };
+
+  const handleSaveContact = (name: string) => {
+    if (!contactId) return;
+
+    // Atualizar nome na sessão
+    StorageManager.updateSessionName(contactId, name);
+    
+    // Atualizar nome no contato salvo se já existir
+    const savedContact = StorageManager.getSavedContact(contactId);
+    if (savedContact) {
+      StorageManager.updateSavedContactName(contactId, name);
+    }
+
+    setContactName(name);
+    setIsSaved(true);
+
+    toast({
+      title: 'Contato salvo!',
+      description: `"${name}" foi salvo com sucesso.`
+    });
+  };
+
+  const handleRenameContact = (name: string) => {
+    if (!contactId) return;
+
+    // Atualizar nome na sessão
+    StorageManager.updateSessionName(contactId, name);
+    
+    // Atualizar nome no contato salvo
+    StorageManager.updateSavedContactName(contactId, name);
+
+    setContactName(name);
+
+    toast({
+      title: 'Contato renomeado!',
+      description: `Nome alterado para "${name}".`
+    });
   };
 
   const handleClearData = () => {
@@ -109,7 +170,7 @@ export default function Chat() {
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-base font-semibold">Contato GAAG</h1>
+                <h1 className="text-base font-semibold">{contactName}</h1>
                 <p className="text-xs text-muted-foreground">
                   {connectionState === 'connected' && 'Online'}
                   {connectionState === 'connecting' && 'Conectando...'}
@@ -120,21 +181,46 @@ export default function Chat() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleExportData}
-                title="Exportar dados"
-              >
-                <Download className="w-4 h-4" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Menu">
+                    <MoreVertical className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {!isSaved && (
+                    <>
+                      <DropdownMenuItem onClick={() => setShowSaveDialog(true)}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Salvar Contato
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={() => setShowRenameDialog(true)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Renomear
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportData}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Exportar Dados
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => document.getElementById('clear-data-trigger')?.click()}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Apagar Dados
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
+                    id="clear-data-trigger"
                     variant="ghost"
                     size="icon"
                     title="Apagar dados"
+                    className="hidden"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -193,6 +279,24 @@ export default function Chat() {
           onTyping={sendTypingIndicator}
         />
       </div>
+
+      {/* Save Contact Dialog */}
+      <SaveContactDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        currentName={contactName}
+        onSave={handleSaveContact}
+        mode="save"
+      />
+
+      {/* Rename Contact Dialog */}
+      <SaveContactDialog
+        open={showRenameDialog}
+        onOpenChange={setShowRenameDialog}
+        currentName={contactName}
+        onSave={handleRenameContact}
+        mode="rename"
+      />
     </div>
   );
 }

@@ -1,11 +1,12 @@
 // Gerenciador de armazenamento local para mensagens e sessões
 
-import type { Message, ChatSession, Contact } from '@/types';
+import type { Message, ChatSession, Contact, SavedContact } from '@/types';
 
 const STORAGE_KEYS = {
-  SESSIONS: 'p2p_chat_sessions',
-  CONTACTS: 'p2p_contacts',
-  CURRENT_SESSION: 'p2p_current_session'
+  SESSIONS: 'gaag_chat_sessions',
+  CONTACTS: 'gaag_contacts',
+  SAVED_CONTACTS: 'gaag_saved_contacts',
+  CURRENT_SESSION: 'gaag_current_session'
 };
 
 export class StorageManager {
@@ -37,6 +38,14 @@ export class StorageManager {
     const sessions = this.getAllSessions();
     const filtered = sessions.filter(s => s.contactId !== contactId);
     localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(filtered));
+  }
+
+  static updateSessionName(contactId: string, newName: string): void {
+    const session = this.getChatSession(contactId);
+    if (session) {
+      session.contactName = newName;
+      this.saveChatSession(session);
+    }
   }
 
   // Mensagens
@@ -95,6 +104,55 @@ export class StorageManager {
     }
   }
 
+  // Contatos Salvos (com códigos de conexão)
+  static saveSavedContact(contact: SavedContact): void {
+    const contacts = this.getAllSavedContacts();
+    const existingIndex = contacts.findIndex(c => c.id === contact.id);
+    
+    if (existingIndex >= 0) {
+      contacts[existingIndex] = contact;
+    } else {
+      contacts.push(contact);
+    }
+    
+    localStorage.setItem(STORAGE_KEYS.SAVED_CONTACTS, JSON.stringify(contacts));
+  }
+
+  static getSavedContact(contactId: string): SavedContact | null {
+    const contacts = this.getAllSavedContacts();
+    return contacts.find(c => c.id === contactId) || null;
+  }
+
+  static getAllSavedContacts(): SavedContact[] {
+    const data = localStorage.getItem(STORAGE_KEYS.SAVED_CONTACTS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  static deleteSavedContact(contactId: string): void {
+    const contacts = this.getAllSavedContacts();
+    const filtered = contacts.filter(c => c.id !== contactId);
+    localStorage.setItem(STORAGE_KEYS.SAVED_CONTACTS, JSON.stringify(filtered));
+  }
+
+  static updateSavedContactName(contactId: string, newName: string): void {
+    const contact = this.getSavedContact(contactId);
+    if (contact) {
+      contact.name = newName;
+      this.saveSavedContact(contact);
+    }
+    
+    // Também atualizar o nome na sessão
+    this.updateSessionName(contactId, newName);
+  }
+
+  static updateSavedContactLastConnected(contactId: string): void {
+    const contact = this.getSavedContact(contactId);
+    if (contact) {
+      contact.lastConnected = Date.now();
+      this.saveSavedContact(contact);
+    }
+  }
+
   // Sessão atual
   static setCurrentSession(contactId: string): void {
     localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, contactId);
@@ -113,6 +171,7 @@ export class StorageManager {
     const data = {
       sessions: this.getAllSessions(),
       contacts: this.getAllContacts(),
+      savedContacts: this.getAllSavedContacts(),
       exportDate: new Date().toISOString()
     };
     return JSON.stringify(data, null, 2);
@@ -129,6 +188,10 @@ export class StorageManager {
       if (data.contacts && Array.isArray(data.contacts)) {
         localStorage.setItem(STORAGE_KEYS.CONTACTS, JSON.stringify(data.contacts));
       }
+
+      if (data.savedContacts && Array.isArray(data.savedContacts)) {
+        localStorage.setItem(STORAGE_KEYS.SAVED_CONTACTS, JSON.stringify(data.savedContacts));
+      }
       
       return true;
     } catch (error) {
@@ -140,6 +203,7 @@ export class StorageManager {
   static clearAllData(): void {
     localStorage.removeItem(STORAGE_KEYS.SESSIONS);
     localStorage.removeItem(STORAGE_KEYS.CONTACTS);
+    localStorage.removeItem(STORAGE_KEYS.SAVED_CONTACTS);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
   }
 }
