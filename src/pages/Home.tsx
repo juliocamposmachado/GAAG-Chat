@@ -360,7 +360,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground">like look solutions</span>
+              <span className="text-sm font-semibold text-foreground">Like Look Solutions</span>
             </div>
             <div className="text-xs text-muted-foreground space-y-1">
               <p>Projeto Visionado Por</p>
