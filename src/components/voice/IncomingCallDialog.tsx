@@ -1,3 +1,4 @@
+import React from 'react';
 import { Phone, PhoneOff } from 'lucide-react';
 import {
   AlertDialog,
