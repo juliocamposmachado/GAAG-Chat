@@ -2,6 +2,8 @@
 
 export class NotificationManager {
   private static hasPermission = false;
+  private static outgoingCallInterval: number | null = null;
+  private static audioContext: AudioContext | null = null;
 
   // Detectar se é dispositivo móvel
   static isMobile(): boolean {
@@ -147,7 +149,7 @@ export class NotificationManager {
     this.playCallRingtone();
   }
 
-  // Som de toque de chamada
+  // Som de toque de chamada recebida
   private static playCallRingtone(): void {
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -184,6 +186,84 @@ export class NotificationManager {
       playRing();
     } catch (error) {
       console.error('[Notificações] Erro ao tocar toque de chamada:', error);
+    }
+  }
+
+  // Som de toque de chamada saindo (quando você liga)
+  static playOutgoingCallRingtone(): void {
+    // Parar qualquer toque anterior
+    this.stopOutgoingCallRingtone();
+
+    try {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      const playRing = () => {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        // Tom diferente para chamada saindo (600Hz + 700Hz)
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + 0.1);
+        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.4);
+
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.4);
+
+        // Segundo tom
+        setTimeout(() => {
+          if (!this.audioContext) return;
+          
+          const oscillator2 = this.audioContext.createOscillator();
+          const gainNode2 = this.audioContext.createGain();
+
+          oscillator2.connect(gainNode2);
+          gainNode2.connect(this.audioContext.destination);
+
+          oscillator2.frequency.value = 700;
+          oscillator2.type = 'sine';
+          
+          gainNode2.gain.setValueAtTime(0, this.audioContext.currentTime);
+          gainNode2.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + 0.1);
+          gainNode2.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.4);
+
+          oscillator2.start(this.audioContext.currentTime);
+          oscillator2.stop(this.audioContext.currentTime + 0.4);
+        }, 450);
+      };
+      
+      // Tocar imediatamente
+      playRing();
+      
+      // Repetir a cada 2 segundos
+      this.outgoingCallInterval = window.setInterval(playRing, 2000);
+      
+    } catch (error) {
+      console.error('[Notificações] Erro ao tocar toque de chamada saindo:', error);
+    }
+  }
+
+  // Parar som de chamada saindo
+  static stopOutgoingCallRingtone(): void {
+    if (this.outgoingCallInterval !== null) {
+      clearInterval(this.outgoingCallInterval);
+      this.outgoingCallInterval = null;
+    }
+    
+    if (this.audioContext) {
+      try {
+        this.audioContext.close();
+      } catch (error) {
+        console.error('[Notificações] Erro ao fechar contexto de áudio:', error);
+      }
+      this.audioContext = null;
     }
   }
 

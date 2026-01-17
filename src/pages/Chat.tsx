@@ -172,6 +172,22 @@ export default function Chat() {
     }
   }, [callState, contactName]);
 
+  // Tocar som quando iniciar chamada (calling)
+  useEffect(() => {
+    if (callState === 'calling') {
+      // Tocar som de chamada saindo
+      NotificationManager.playOutgoingCallRingtone();
+    } else if (callState === 'active' || callState === 'ended' || callState === 'idle') {
+      // Parar som quando chamada for aceita, encerrada ou voltar ao idle
+      NotificationManager.stopOutgoingCallRingtone();
+    }
+
+    // Cleanup: parar som ao desmontar componente
+    return () => {
+      NotificationManager.stopOutgoingCallRingtone();
+    };
+  }, [callState]);
+
   const handleStartCall = async () => {
     try {
       await startVoiceCall();

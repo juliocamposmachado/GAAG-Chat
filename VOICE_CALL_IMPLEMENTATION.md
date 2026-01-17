@@ -56,13 +56,24 @@ return {
 
 **Adicionado:**
 - `notifyIncomingCall()`: Notificação de chamada recebida
-- `playCallRingtone()`: Som de toque de chamada (800Hz, 5 toques)
+- `playCallRingtone()`: Som de toque de chamada recebida (800Hz, 5 toques)
+- `playOutgoingCallRingtone()`: Som de toque de chamada saindo (600Hz + 700Hz, contínuo)
+- `stopOutgoingCallRingtone()`: Para som de chamada saindo
+- Propriedades estáticas: `outgoingCallInterval` e `audioContext` para controle do som
 
-**Características do ringtone:**
+**Características dos ringtones:**
+
+**Chamada Recebida:**
 - Frequência: 800 Hz
 - Duração: 0.5s por toque
 - Intervalo: 1s entre toques
 - Máximo: 5 toques
+
+**Chamada Saindo:**
+- Frequências: 600 Hz + 700 Hz (dois tons)
+- Duração: 0.4s por tom
+- Intervalo: 2s entre repetições
+- Contínuo até chamada ser aceita ou encerrada
 
 ---
 
@@ -122,16 +133,17 @@ return {
 - Botão de chamada no header (visível quando conectado e sem chamada ativa)
 - Handlers: `handleStartCall`, `handleAcceptCall`, `handleRejectCall`, `handleEndCall`
 - useEffect para notificar chamadas recebidas
+- useEffect para tocar/parar som de chamada saindo baseado em callState
 - Lógica para alternar entre chat e interface de chamada
 - Encerramento automático de chamada ao desconectar
 
 **Fluxo de UI:**
 ```
 callState === 'idle'     → Mostra botão de chamada + chat
-callState === 'calling'  → Mostra "Chamando..." + chat
-callState === 'ringing'  → Mostra IncomingCallDialog
-callState === 'active'   → Mostra ActiveCallInterface (oculta chat)
-callState === 'ended'    → Volta para 'idle'
+callState === 'calling'  → Mostra "Chamando..." + chat + toca som de chamada saindo
+callState === 'ringing'  → Mostra IncomingCallDialog + toca som de chamada recebida
+callState === 'active'   → Mostra ActiveCallInterface (oculta chat) + para sons
+callState === 'ended'    → Volta para 'idle' + para sons
 ```
 
 ---
@@ -213,9 +225,13 @@ await startVoiceCall();
 4. dataChannel.send(JSON.stringify({ type: 'call-request' }));
 5. onCallStateCallback('calling');
 
+// Chat.tsx useEffect:
+6. NotificationManager.playOutgoingCallRingtone(); // Toca som contínuo
+
 // UI:
 - Toast: "Chamando..."
 - Estado: calling
+- Som: 600Hz + 700Hz (repetindo a cada 2s)
 ```
 
 ### 2. Receber Chamada (Callee)
@@ -254,11 +270,15 @@ dataChannel.onmessage = (event) => {
   }
 };
 
+// Chat.tsx useEffect (Caller):
+3. NotificationManager.stopOutgoingCallRingtone(); // Para som de chamada saindo
+
 // UI (ambos):
 - ActiveCallInterface aparece
 - Chat é ocultado
 - Contador de duração inicia
 - Estado: active
+- Som de chamada saindo parado (caller)
 ```
 
 ### 4. Stream de Áudio

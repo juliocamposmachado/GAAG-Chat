@@ -101,7 +101,8 @@ await startVoiceCall();
 2. Adiciona tracks de áudio à conexão WebRTC
 3. Envia sinal 'call-request' via DataChannel
 4. Atualiza estado para 'calling'
-5. Exibe "Chamando..."
+5. Toca som de chamada saindo (600Hz + 700Hz, contínuo)
+6. Exibe "Chamando..."
 ```
 
 ### 2. Receber Chamada (Callee)
@@ -126,8 +127,9 @@ acceptVoiceCall();
 // Sistema:
 1. Envia sinal 'call-accept' via DataChannel
 2. Atualiza estado para 'active'
-3. Exibe interface de chamada ativa
-4. Conecta stream remoto ao elemento <audio>
+3. Para som de chamada saindo (caller)
+4. Exibe interface de chamada ativa
+5. Conecta stream remoto ao elemento <audio>
 ```
 
 ### 4. Chamada Ativa
@@ -198,27 +200,29 @@ Usuário A (Caller)                    Usuário B (Callee)
        │ 1. Clica "Chamar"                    │
        │ 2. getUserMedia(audio)               │
        │ 3. addTrack(audioTrack)              │
+       │ 4. Toca som (600Hz+700Hz)            │
        │                                      │
        │────── call-request (DataChannel) ────>
        │                                      │
-       │                         4. Recebe sinal
-       │                         5. Toca ringtone
-       │                         6. Mostra dialog
+       │ [Som contínuo tocando...]            │ 5. Recebe sinal
+       │                                      │ 6. Toca ringtone (800Hz)
+       │                                      │ 7. Mostra dialog
        │                                      │
-       │                         7. Clica "Atender"
+       │                                      │ 8. Clica "Atender"
        │<───── call-accept (DataChannel) ──────
        │                                      │
-       │ 8. Estado: active                    │ 8. Estado: active
+       │ 9. Para som de chamada               │
+       │ 10. Estado: active                   │ 10. Estado: active
        │                                      │
        │<══════ Audio Stream (WebRTC) ═══════>
        │                                      │
-       │ 9. Conversa em andamento             │ 9. Conversa em andamento
+       │ 11. Conversa em andamento            │ 11. Conversa em andamento
        │                                      │
-       │ 10. Clica "Encerrar"                 │
+       │ 12. Clica "Encerrar"                 │
        │────── call-end (DataChannel) ────────>
        │                                      │
-       │ 11. Para tracks                      │ 11. Para tracks
-       │ 12. Remove streams                   │ 12. Remove streams
+       │ 13. Para tracks                      │ 13. Para tracks
+       │ 14. Remove streams                   │ 14. Remove streams
        │                                      │
        ▼                                      ▼
    Chamada encerrada                    Chamada encerrada
@@ -274,18 +278,37 @@ type CallState = 'idle' | 'calling' | 'ringing' | 'active' | 'ended';
 
 ### Som de Toque (Ringtone)
 
-**Características:**
+**Chamada Recebida (Incoming):**
 - Frequência: 800 Hz
 - Duração: 0.5s por toque
 - Intervalo: 1s entre toques
 - Máximo: 5 toques
 
+**Chamada Saindo (Outgoing):**
+- Frequências: 600 Hz + 700 Hz (dois tons)
+- Duração: 0.4s por tom
+- Intervalo: 2s entre repetições
+- Contínuo até chamada ser aceita ou encerrada
+
 **Implementação:**
 ```typescript
+// Chamada recebida
 playCallRingtone() {
   // Web Audio API
-  // Oscilador senoidal
-  // Repetição com setTimeout
+  // Oscilador senoidal 800Hz
+  // Repetição com setTimeout (5x)
+}
+
+// Chamada saindo
+playOutgoingCallRingtone() {
+  // Web Audio API
+  // Dois osciladores (600Hz + 700Hz)
+  // Repetição contínua com setInterval
+}
+
+// Parar chamada saindo
+stopOutgoingCallRingtone() {
+  // Limpa interval e fecha AudioContext
 }
 ```
 
@@ -303,6 +326,25 @@ playCallRingtone() {
 - requireInteraction: true (não desaparece automaticamente)
 
 ## Troubleshooting
+
+---
+
+### Som de chamada não para
+
+**Problema:** Som de chamada saindo continua tocando após aceitar/encerrar
+
+**Causas:**
+- Estado da chamada não atualizou corretamente
+- Interval não foi limpo
+- AudioContext não foi fechado
+
+**Solução:**
+1. Recarregar a página
+2. Verificar console para erros
+3. Verificar se callState mudou para 'active' ou 'ended'
+4. Método stopOutgoingCallRingtone() deve ser chamado automaticamente
+
+---
 
 ### Microfone não funciona
 
