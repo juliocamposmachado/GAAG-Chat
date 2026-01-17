@@ -30,8 +30,7 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - **Salvamento de conversas com nome personalizado no LocalStorage**
 - **Manutenção do vínculo entre usuários para futuras conversas**
 
-### 2.3 Segurança
-- Criptografia ponta-a-ponta obrigatória (nativa do WebRTC)
+### 2.3 Segurança\n- Criptografia ponta-a-ponta obrigatória (nativa do WebRTC)
 - Chaves geradas localmente
 - Sem login, e-mail, telefone ou rastreamento
 - Identidade baseada em QR Code, código temporário ou link P2P
@@ -48,7 +47,8 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 
 ### 3.2 Conexão entre Usuários
 - Usuário A gera código/QR
-- Usuário B escaneia ou digita código\n- Estabelecimento de conexão direta
+- Usuário B escaneia ou digita código
+- Estabelecimento de conexão direta
 - Canal permanece ativo enquanto ambos estiverem online
 - **Salvamento automático da conexão no LocalStorage após estabelecimento**
 - **Reconexão automática com contatos salvos em futuras sessões**
@@ -59,31 +59,23 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - Histórico de mensagens salvo localmente
 - **Nomeação personalizada de conversas pelo usuário**
 - **Persistência de todas as conversas no LocalStorage**
-- **Manutenção do histórico completo de cada conversa nomeada**
-- Exportação/importação manual de dados
+- **Manutenção do histórico completo de cada conversa nomeada**\n- Exportação/importação manual de dados
 
 ### 3.4 Persistência de Vínculos
 - **Armazenamento de informações de conexão (peer ID, chaves de sessão) no LocalStorage**
 - **Recuperação automática de conversas anteriores ao reabrir o aplicativo**
-- **Preservação do vínculo entre usuários mesmo após desconexão temporária**
-- **Lista de conversas salvas acessível na interface principal**
+- **Preservação do vínculo entre usuários mesmo após desconexão temporária**\n- **Lista de conversas salvas acessível na interface principal**
 
 ## 4. Interface do Usuário
-
-### 4.1 Estilo Visual
+\n### 4.1 Estilo Visual
 - Design minimalista
-- Dark mode
-- Interface focada em contatos diretos e conversas ativas
-- Inspiração UX de chat com bolhas de mensagem
-- Sem feed ou timeline
-
+- Dark mode\n- Interface focada em contatos diretos e conversas ativas\n- Inspiração UX de chat com bolhas de mensagem\n- Sem feed ou timeline\n
 ### 4.2 Estrutura de Páginas
 - Tela de geração de oferta (Usuário A)
 - Tela de aceitação de oferta (Usuário B)
 - Tela de chat com histórico de mensagens
 - **Tela de lista de conversas salvas com nomes personalizados**
-- **Opção para nomear/renomear conversas**
-- Área de input de mensagens
+- **Opção para nomear/renomear conversas**\n- Área de input de mensagens
 - Botões de ação (Gerar Oferta, Aceitar Oferta, Finalizar Conexão, Salvar Conversa)
 
 ## 5. Limitações Técnicas
@@ -93,29 +85,39 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - Mensagens não são entregues se usuário estiver offline
 - Não há fila de mensagens em servidor
 - Comunicação depende de configuração NAT/firewall
-- **Histórico e vínculos são mantidos localmente mesmo quando offline**
-
+- **Histórico e vínculos são mantidos localmente mesmo quando offline**\n
 ### 5.2 Escopo
-- Não é substituto completo de mensageiros corporativos\n- É um mensageiro descentralizado focado em privacidade
+- Não é substituto completo de mensageiros corporativos
+- É um mensageiro descentralizado focado em privacidade
 - Controle total do usuário sobre seus dados
-\n## 6. Plataformas Suportadas
-- Web App (PWA)
-- Android (via WebView ou Flutter)
-- Desktop (Electron ou Tauri)
+
+## 6. Plataformas Suportadas
+- **Web App (PWA - Progressive Web App instalável)**
+- **Android (via WebView ou Flutter)**
+- **Desktop (Electron ou Tauri)**
+
+### 6.1 Requisitos de Instalação
+- **Configuração de PWA com manifest.json**
+- **Service Worker para funcionamento offline**
+- **Ícones de aplicativo em múltiplas resoluções**
+- **Suporte a instalação via navegador (Add to Home Screen)**
+- **Capacidade de executar como aplicativo standalone**
 
 ## 7. Código Base Fornecido
 
 O usuário forneceu código HTML/JavaScript funcional implementando:
 - Configuração RTCPeerConnection com servidor STUN do Google
-- Criação de DataChannel para chat
-- Geração e troca de ofertas/respostas SDP
+- Criação de DataChannel para chat\n- Geração e troca de ofertas/respostas SDP
 - Interface básica com áreas de texto para oferta/resposta
 - Sistema de mensagens com distinção visual (me/peer)
 - Envio de mensagens via tecla Enter
 
-## 8. Princípios do Projeto\n- Autonomia informacional\n- Privacidade absoluta
+## 8. Princípios do Projeto
+- Autonomia informacional
+- Privacidade absoluta
 - Minimização de dados
 - Comunicação direta entre partes
 - Transparência sobre limitações técnicas
 - **Persistência local de dados e vínculos**
 - **Controle total do usuário sobre nomeação e organização de conversas**
+- **Instalabilidade como aplicativo nativo**

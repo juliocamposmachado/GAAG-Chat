@@ -13,8 +13,30 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 - **Sem Login**: Não requer cadastro, e-mail ou telefone
 - **Dark Mode**: Interface escura focada em privacidade
 - **QR Code**: Conexão fácil via QR Code ou código manual
+- **📱 PWA (Instalável)**: Instale como aplicativo no seu dispositivo
+- **💾 Contatos Salvos**: Salve conexões para reconectar rapidamente
+- **✏️ Renomear Contatos**: Personalize nomes dos seus contatos
+- **🔄 Reconexão Rápida**: Acesse conversas anteriores com um clique
 
 ## 🚀 Como Usar
+
+### 📲 Instalar o Aplicativo (Recomendado)
+
+O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu dispositivo:
+
+**Android/Chrome:**
+1. Abra o GAAG Chat no navegador
+2. Toque no banner "Instalar GAAG Chat" ou
+3. Menu (⋮) → "Instalar aplicativo"
+
+**iOS/Safari:**
+1. Abra no Safari
+2. Toque em Compartilhar (□↑)
+3. "Adicionar à Tela de Início"
+
+**Desktop:**
+1. Clique no ícone de instalação (⊕) na barra de endereço
+2. Ou Menu → "Instalar GAAG Chat"
 
 ### Iniciar uma Conexão (Usuário A)
 
@@ -40,8 +62,16 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 - **Enviar Mensagens**: Digite e pressione Enter ou clique no botão enviar
 - **Indicador de Digitação**: Veja quando o outro usuário está digitando
 - **Status de Conexão**: Monitore o estado da conexão no topo
-- **Exportar Dados**: Faça backup das conversas localmente
+- **Salvar Contato**: Menu (⋮) → "Salvar Contato" para reconexão futura
+- **Renomear**: Menu (⋮) → "Renomear" para personalizar o nome
+- **Exportar Dados**: Menu (⋮) → "Exportar Dados" para backup
 - **Desconectar**: Encerre a conexão quando desejar
+
+### Reconectar com Contatos Salvos
+
+1. Na página inicial, veja a lista de "Contatos Salvos"
+2. Clique em "Conectar" no contato desejado
+3. O histórico de mensagens será restaurado automaticamente
 
 ## 🔧 Tecnologias
 
@@ -51,6 +81,8 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 - **shadcn/ui**: Componentes de UI
 - **localStorage**: Persistência local
 - **QRCode.js**: Geração de QR Codes
+- **PWA**: Service Worker + Manifest para instalação
+- **Vite**: Build tool e dev server
 
 ## 📋 Limitações
 
@@ -74,10 +106,14 @@ src/
 ├── components/
 │   ├── chat/
 │   │   ├── ChatInterface.tsx      # Interface principal do chat
-│   │   └── MessageBubble.tsx      # Bolhas de mensagem
-│   └── connection/
-│       ├── QRCodeGenerator.tsx    # Gerador de código de conexão
-│       └── OfferAcceptor.tsx      # Aceitador de conexão
+│   │   ├── MessageBubble.tsx      # Bolhas de mensagem
+│   │   └── SaveContactDialog.tsx  # Dialog para salvar/renomear
+│   ├── connection/
+│   │   ├── QRCodeGenerator.tsx    # Gerador de código de conexão
+│   │   ├── OfferAcceptor.tsx      # Aceitador de conexão
+│   │   └── SavedContactsList.tsx  # Lista de contatos salvos
+│   └── pwa/
+│       └── InstallPrompt.tsx      # Prompt de instalação PWA
 ├── hooks/
 │   └── use-webrtc.ts              # Hook de gerenciamento WebRTC
 ├── lib/
@@ -88,6 +124,9 @@ src/
 │   └── Chat.tsx                   # Página de chat
 └── types/
     └── types.ts                   # Definições de tipos
+public/
+├── manifest.json                  # Manifest PWA
+└── sw.js                          # Service Worker
 ```
 
 ## 🎨 Design
@@ -112,6 +151,11 @@ npm run build
 # Lint
 npm run lint
 ```
+
+## 📚 Documentação Adicional
+
+- **[PWA_GUIDE.md](./PWA_GUIDE.md)**: Guia completo sobre PWA e instalação
+- **[CONTACT_MANAGEMENT.md](./CONTACT_MANAGEMENT.md)**: Sistema de gerenciamento de contatos
 
 ---
 

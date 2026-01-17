@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 
 import routes from './routes';
 
@@ -30,6 +31,7 @@ const App: React.FC = () => {
         </main>
       </div>
       <Toaster />
+      <InstallPrompt />
     </Router>
   );
 };
