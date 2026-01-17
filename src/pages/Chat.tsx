@@ -80,9 +80,18 @@ export default function Chat() {
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      // Notificar apenas mensagens do peer (não as minhas)
-      if (lastMessage.sender === 'peer' && !document.hasFocus()) {
-        NotificationManager.notifyNewMessage(contactName, lastMessage.text);
+      
+      if (lastMessage.sender === 'peer') {
+        // Mensagem recebida - sempre tocar som
+        NotificationManager.playMessageSound();
+        
+        // Notificação visual apenas se janela não estiver em foco
+        if (!document.hasFocus()) {
+          NotificationManager.notifyNewMessage(contactName, lastMessage.text);
+        }
+      } else if (lastMessage.sender === 'me') {
+        // Mensagem enviada - tocar som
+        NotificationManager.playMessageSound();
       }
     }
   }, [messages, contactName]);

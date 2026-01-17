@@ -83,9 +83,10 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 3. Teste a notificação para confirmar
 
 **Você será notificado quando:**
-- Reconectar com um contato salvo
-- Receber uma nova mensagem (apenas se app em segundo plano)
-- Conexão WebRTC for estabelecida com sucesso
+- Reconectar com um contato salvo (visual + som)
+- Receber uma nova mensagem (sempre som, visual apenas se app em segundo plano)
+- Enviar uma mensagem (apenas som como feedback)
+- Conexão WebRTC for estabelecida com sucesso (visual + som)
 
 **Todas as notificações incluem som!**
 

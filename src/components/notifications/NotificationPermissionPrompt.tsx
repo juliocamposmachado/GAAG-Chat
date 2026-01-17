@@ -80,7 +80,19 @@ export function NotificationPermissionPrompt() {
               <div>
                 <p className="text-sm font-medium">Nova Mensagem</p>
                 <p className="text-xs text-muted-foreground">
-                  Quando receber uma mensagem (apenas se o app estiver em segundo plano)
+                  Quando receber uma mensagem (som sempre, notificação visual apenas em segundo plano)
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Bell className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Mensagem Enviada</p>
+                <p className="text-xs text-muted-foreground">
+                  Quando você enviar uma mensagem (apenas som como feedback)
                 </p>
               </div>
             </div>

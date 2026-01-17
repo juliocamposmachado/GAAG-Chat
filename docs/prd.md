@@ -32,10 +32,10 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - **Armazenamento de credenciais de conexão para reconexão**
 
 ### 2.3 Segurança
-- Criptografia ponta-a-ponta obrigatória (nativa do WebRTC)\n- Chaves geradas localmente
-- Sem login, e-mail, telefone ou rastreamento
-- Identidade baseada em QR Code, código temporário ou link P2P\n
-## 3. Funcionalidades Principais
+- Criptografia ponta-a-ponta obrigatória (nativa do WebRTC)
+- Chaves geradas localmente\n- Sem login, e-mail, telefone ou rastreamento
+- Identidade baseada em QR Code, código temporário ou link P2P
+\n## 3. Funcionalidades Principais
 \n### 3.1 Comunicação
 - Mensagens de texto
 - Mensagens de voz (opcional)
@@ -64,27 +64,31 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 ### 3.5 Reconexão
 - **Botão Reconectar disponível em cada conversa salva**
 - **Utilização das credenciais armazenadas localmente para restabelecer conexão**
-- **Notificação sonora no dispositivo ao reconectar com sucesso**
-- **Notificação visual indicando status de reconexão**
+- **Notificação sonora no dispositivo ao reconectar com sucesso**\n- **Notificação visual indicando status de reconexão**
 - **Tentativa automática de reconexão usando dados salvos**
 
-## 4. Interface do Usuário
-\n### 4.1 Estilo Visual
+## 4. Interface do Usuário\n
+### 4.1 Estilo Visual
 - Design minimalista
-- Dark mode\n- Interface focada em contatos diretos e conversas ativas\n- Inspiração UX de chat com bolhas de mensagem\n- Sem feed ou timeline\n
+- Dark mode
+- Interface focada em contatos diretos e conversas ativas
+- Inspiração UX de chat com bolhas de mensagem
+- Sem feed ou timeline
+
 ### 4.2 Estrutura de Páginas
 - Tela de geração de oferta (Usuário A)
 - Tela de aceitação de oferta (Usuário B)
 - Tela de chat com histórico de mensagens
 - **Tela de lista de conversas salvas com nomes personalizados**
-- **Opção para nomear/renomear conversas**\n- Área de input de mensagens
-- Botões de ação (Gerar Oferta, Aceitar Oferta, Finalizar Conexão, Salvar Conversa, **Reconectar**)
-\n### 4.3 Notificações
-- **Notificação sonora ao reconectar com sucesso**
-- **Notificação visual de status de conexão**
+- **Opção para nomear/renomear conversas**
+- Área de input de mensagens
+- Botões de ação (Gerar Oferta, Aceitar Oferta, Finalizar Conexão, Salvar Conversa, **Reconectar**)\n
+### 4.3 Notificações
+- **Notificação sonora ao reconectar com sucesso**\n- **Notificação sonora ao enviar mensagem**
+- **Notificação sonora ao receber mensagem**\n- **Notificação visual de status de conexão**
 - **Feedback visual durante tentativa de reconexão**
-\n## 5. Limitações Técnicas
 
+## 5. Limitações Técnicas\n
 ### 5.1 Requisitos de Funcionamento
 - Ambos os usuários devem estar online simultaneamente para troca de mensagens em tempo real
 - Mensagens não são entregues se usuário estiver offline
@@ -94,35 +98,36 @@ Criar um mensageiro privado, minimalista, seguro e descentralizado onde a comuni
 - **Reconexão depende da disponibilidade do outro usuário online**
 
 ### 5.2 Escopo
-- Não é substituto completo de mensageiros corporativos\n- É um mensageiro descentralizado focado em privacidade
+- Não é substituto completo de mensageiros corporativos
+- É um mensageiro descentralizado focado em privacidade
 - Controle total do usuário sobre seus dados
-\n## 6. Plataformas Suportadas
+
+## 6. Plataformas Suportadas
 - **Web App (PWA - Progressive Web App instalável)**
-- **Android (via WebView ou Flutter)**
-- **Desktop (Electron ou Tauri)**\n
+- **Android (via WebView ou Flutter)**\n- **Desktop (Electron ou Tauri)**
+
 ### 6.1 Requisitos de Instalação
-- **Configuração de PWA com manifest.json**\n- **Service Worker para funcionamento offline**
-- **Ícones de aplicativo em múltiplas resoluções**
+- **Configuração de PWA com manifest.json**
+- **Service Worker para funcionamento offline**\n- **Ícones de aplicativo em múltiplas resoluções**
 - **Suporte a instalação via navegador (Add to Home Screen)**
 - **Capacidade de executar como aplicativo standalone**
 - **Permissões para notificações sonoras e visuais**
 
-## 7. Código Base Fornecido
-
+## 7. Código Base Fornecido\n
 O usuário forneceu código HTML/JavaScript funcional implementando:
-- Configuração RTCPeerConnection com servidor STUN do Google\n- Criação de DataChannel para chat
+- Configuração RTCPeerConnection com servidor STUN do Google
+- Criação de DataChannel para chat
 - Geração e troca de ofertas/respostas SDP
 - Interface básica com áreas de texto para oferta/resposta
 - Sistema de mensagens com distinção visual (me/peer)
 - Envio de mensagens via tecla Enter
-
-## 8. Princípios do Projeto
+\n## 8. Princípios do Projeto
 - Autonomia informacional
 - Privacidade absoluta
 - Minimização de dados
 - Comunicação direta entre partes
-- Transparência sobre limitações técnicas\n- **Persistência local de dados e vínculos**
+- Transparência sobre limitações técnicas
+- **Persistência local de dados e vínculos**
 - **Controle total do usuário sobre nomeação e organização de conversas**
 - **Instalabilidade como aplicativo nativo**
-- **Reconexão facilitada com credenciais salvas**
-- **Feedback sonoro e visual para melhor experiência do usuário**
+- **Reconexão facilitada com credenciais salvas**\n- **Feedback sonoro e visual para melhor experiência do usuário**

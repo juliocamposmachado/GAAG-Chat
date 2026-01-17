@@ -143,6 +143,11 @@ export class NotificationManager {
     });
   }
 
+  // Tocar som de mensagem (sem notificação visual)
+  static playMessageSound(): void {
+    this.playNotificationSound();
+  }
+
   // Notificar conexão estabelecida
   static notifyConnectionEstablished(contactName: string): void {
     this.notify('Conexão Estabelecida!', {

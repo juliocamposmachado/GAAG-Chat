@@ -17,11 +17,18 @@ Sistema completo de notificações com som para o GAAG Chat, que alerta o usuár
 - **Som:** Dois bipes (800Hz + 1000Hz)
 
 #### Nova Mensagem
-- **Quando:** Ao receber mensagem (apenas se app em segundo plano)
+- **Quando:** Ao receber mensagem (sempre toca som)
 - **Título:** "Nova mensagem de [Nome do Contato]"
 - **Mensagem:** Prévia da mensagem (até 50 caracteres)
 - **Som:** Dois bipes
-- **Comportamento:** Não notifica se janela está em foco
+- **Notificação Visual:** Apenas se janela não estiver em foco
+- **Comportamento:** Som sempre toca, notificação visual apenas em background
+
+#### Mensagem Enviada
+- **Quando:** Ao enviar uma mensagem
+- **Som:** Dois bipes
+- **Notificação Visual:** Não (apenas som)
+- **Comportamento:** Feedback sonoro de confirmação de envio
 
 #### Conexão Estabelecida
 - **Quando:** Conexão WebRTC é estabelecida com sucesso
@@ -106,6 +113,9 @@ class NotificationManager {
   // Tocar som
   static playNotificationSound(): void
   
+  // Tocar som de mensagem (sem notificação visual)
+  static playMessageSound(): void
+  
   // Notificações específicas
   static notifyReconnection(contactName: string): void
   static notifyNewMessage(contactName: string, message: string): void
@@ -150,8 +160,18 @@ useEffect(() => {
 // Notificar novas mensagens
 useEffect(() => {
   const lastMessage = messages[messages.length - 1];
-  if (lastMessage?.sender === 'peer' && !document.hasFocus()) {
-    NotificationManager.notifyNewMessage(contactName, lastMessage.text);
+  
+  if (lastMessage?.sender === 'peer') {
+    // Mensagem recebida - sempre tocar som
+    NotificationManager.playMessageSound();
+    
+    // Notificação visual apenas se janela não estiver em foco
+    if (!document.hasFocus()) {
+      NotificationManager.notifyNewMessage(contactName, lastMessage.text);
+    }
+  } else if (lastMessage?.sender === 'me') {
+    // Mensagem enviada - tocar som
+    NotificationManager.playMessageSound();
   }
 }, [messages]);
 ```
@@ -167,8 +187,9 @@ useEffect(() => {
 - Fecha a notificação
 
 ### Foco da Janela
-- Mensagens não notificam se janela está em foco
-- Reconexões e conexões sempre notificam
+- Mensagens **sempre** tocam som (enviadas e recebidas)
+- Notificações visuais apenas quando janela não está em foco
+- Reconexões e conexões sempre notificam (visual + som)
 
 ### Ícone
 - Usa `/favicon.png` como ícone
@@ -288,14 +309,15 @@ NotificationManager.notify('Título', {
 
 ### Quando Notificar
 ✅ **Sim:**
-- Reconexões importantes
-- Novas mensagens (app em background)
-- Eventos críticos
+- Reconexões importantes (visual + som)
+- Novas mensagens recebidas (sempre som, visual apenas em background)
+- Mensagens enviadas (apenas som, feedback de confirmação)
+- Eventos críticos (conexão estabelecida)
 
 ❌ **Não:**
-- Ações iniciadas pelo usuário
-- Eventos frequentes/repetitivos
-- Quando janela está em foco
+- Ações triviais do usuário
+- Eventos muito frequentes sem valor
+- Quando causaria spam de notificações
 
 ### Conteúdo da Notificação
 ✅ **Bom:**
