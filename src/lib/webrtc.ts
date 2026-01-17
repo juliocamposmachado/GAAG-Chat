@@ -21,10 +21,13 @@ export class WebRTCManager {
   }
 
   private initializePeerConnection() {
+    console.log('[WebRTC] Inicializando peer connection');
     this.peerConnection = new RTCPeerConnection(this.config);
 
     this.peerConnection.oniceconnectionstatechange = () => {
       const state = this.peerConnection?.iceConnectionState;
+      console.log('[WebRTC] ICE Connection State:', state);
+      
       if (state === 'connected') {
         this.notifyStateChange('connected');
       } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
@@ -34,7 +37,21 @@ export class WebRTCManager {
       }
     };
 
+    this.peerConnection.onconnectionstatechange = () => {
+      const state = this.peerConnection?.connectionState;
+      console.log('[WebRTC] Connection State:', state);
+    };
+
+    this.peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log('[WebRTC] ICE Candidate:', event.candidate.candidate);
+      } else {
+        console.log('[WebRTC] ICE Gathering completo');
+      }
+    };
+
     this.peerConnection.ondatachannel = (event) => {
+      console.log('[WebRTC] Data channel recebido');
       this.dataChannel = event.channel;
       this.setupDataChannel();
     };
@@ -43,19 +60,26 @@ export class WebRTCManager {
   private setupDataChannel() {
     if (!this.dataChannel) return;
 
+    console.log('[WebRTC] Configurando data channel, estado:', this.dataChannel.readyState);
+
     this.dataChannel.onopen = () => {
-      console.log('Canal de dados aberto');
+      console.log('[WebRTC] Canal de dados aberto');
       this.notifyStateChange('connected');
     };
 
     this.dataChannel.onclose = () => {
-      console.log('Canal de dados fechado');
+      console.log('[WebRTC] Canal de dados fechado');
       this.notifyStateChange('disconnected');
+    };
+
+    this.dataChannel.onerror = (error) => {
+      console.error('[WebRTC] Erro no canal de dados:', error);
     };
 
     this.dataChannel.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log('[WebRTC] Mensagem recebida:', data);
         if (data.type === 'message') {
           this.onMessageCallback?.(data.text);
         } else if (data.type === 'typing') {
@@ -68,46 +92,57 @@ export class WebRTCManager {
   }
 
   async createOffer(): Promise<string> {
+    console.log('[WebRTC] Criando oferta');
     if (!this.peerConnection) {
       throw new Error('Conexão peer não inicializada');
     }
 
     this.dataChannel = this.peerConnection.createDataChannel('chat');
+    console.log('[WebRTC] Data channel criado');
     this.setupDataChannel();
 
     const offer = await this.peerConnection.createOffer();
+    console.log('[WebRTC] Oferta criada:', offer);
     await this.peerConnection.setLocalDescription(offer);
 
     // Aguardar coleta de candidatos ICE
     await this.waitForIceCandidates();
 
+    console.log('[WebRTC] Oferta completa com ICE candidates');
     return JSON.stringify(this.peerConnection.localDescription);
   }
 
   async acceptOffer(offerJson: string): Promise<string> {
+    console.log('[WebRTC] Aceitando oferta');
     if (!this.peerConnection) {
       throw new Error('Conexão peer não inicializada');
     }
 
     const offer = JSON.parse(offerJson);
+    console.log('[WebRTC] Oferta recebida:', offer);
     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 
     const answer = await this.peerConnection.createAnswer();
+    console.log('[WebRTC] Resposta criada:', answer);
     await this.peerConnection.setLocalDescription(answer);
 
     // Aguardar coleta de candidatos ICE
     await this.waitForIceCandidates();
 
+    console.log('[WebRTC] Resposta completa com ICE candidates');
     return JSON.stringify(this.peerConnection.localDescription);
   }
 
   async acceptAnswer(answerJson: string): Promise<void> {
+    console.log('[WebRTC] Aceitando resposta');
     if (!this.peerConnection) {
       throw new Error('Conexão peer não inicializada');
     }
 
     const answer = JSON.parse(answerJson);
+    console.log('[WebRTC] Resposta recebida:', answer);
     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    console.log('[WebRTC] Remote description definida, aguardando conexão');
   }
 
   private waitForIceCandidates(): Promise<void> {
@@ -141,14 +176,16 @@ export class WebRTCManager {
 
   sendMessage(text: string): boolean {
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+      console.warn('[WebRTC] Tentativa de enviar mensagem com canal não aberto:', this.dataChannel?.readyState);
       return false;
     }
 
     try {
+      console.log('[WebRTC] Enviando mensagem:', text);
       this.dataChannel.send(JSON.stringify({ type: 'message', text }));
       return true;
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      console.error('[WebRTC] Erro ao enviar mensagem:', error);
       return false;
     }
   }
@@ -178,20 +215,28 @@ export class WebRTCManager {
   }
 
   private notifyStateChange(state: ConnectionState): void {
+    console.log('[WebRTC] Notificando mudança de estado:', state);
     this.onStateChangeCallback?.(state);
   }
 
   getConnectionState(): ConnectionState {
     if (!this.peerConnection) return 'disconnected';
 
-    const state = this.peerConnection.iceConnectionState;
-    if (state === 'connected') return 'connected';
-    if (state === 'checking' || state === 'new') return 'connecting';
-    if (state === 'failed') return 'failed';
+    const iceState = this.peerConnection.iceConnectionState;
+    const channelState = this.dataChannel?.readyState;
+    
+    console.log('[WebRTC] Estado atual - ICE:', iceState, 'Canal:', channelState);
+    
+    // Priorizar estado do canal de dados se existir
+    if (channelState === 'open') return 'connected';
+    if (iceState === 'connected') return 'connected';
+    if (iceState === 'checking' || iceState === 'new') return 'connecting';
+    if (iceState === 'failed') return 'failed';
     return 'disconnected';
   }
 
   disconnect(): void {
+    console.log('[WebRTC] Desconectando');
     if (this.dataChannel) {
       this.dataChannel.close();
       this.dataChannel = null;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,13 +8,13 @@ import { QRCodeGenerator } from '@/components/connection/QRCodeGenerator';
 import { OfferAcceptor } from '@/components/connection/OfferAcceptor';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
-import { Shield, MessageCircle } from 'lucide-react';
+import { Shield, MessageCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createOffer, acceptOffer, acceptAnswer } = useWebRTC();
+  const { createOffer, acceptOffer, acceptAnswer, connectionState } = useWebRTC();
 
   const [offerData, setOfferData] = useState('');
   const [answerData, setAnswerData] = useState('');
@@ -22,6 +22,22 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [answerCode, setAnswerCode] = useState('');
   const [showAnswerInput, setShowAnswerInput] = useState(false);
+  const [contactId, setContactId] = useState<string>('');
+  const [waitingForConnection, setWaitingForConnection] = useState(false);
+
+  // Monitorar estado de conexão e redirecionar quando conectado
+  useEffect(() => {
+    if (connectionState === 'connected' && contactId && waitingForConnection) {
+      toast({
+        title: 'Conectado!',
+        description: 'Redirecionando para o chat...'
+      });
+      
+      setTimeout(() => {
+        navigate('/chat');
+      }, 500);
+    }
+  }, [connectionState, contactId, waitingForConnection, navigate, toast]);
 
   const handleGenerateOffer = async () => {
     setIsGenerating(true);
@@ -29,6 +45,17 @@ export default function Home() {
       const offer = await createOffer();
       setOfferData(offer);
       setShowAnswerInput(true);
+      
+      // Criar sessão de chat para o iniciador
+      const newContactId = `peer-${Date.now()}`;
+      setContactId(newContactId);
+      StorageManager.setCurrentSession(newContactId);
+      StorageManager.saveChatSession({
+        contactId: newContactId,
+        contactName: 'Contato P2P',
+        messages: [],
+        createdAt: Date.now()
+      });
       
       toast({
         title: 'Código gerado!',
@@ -51,11 +78,12 @@ export default function Home() {
       const answer = await acceptOffer(offerCode);
       setAnswerData(answer);
       
-      // Criar sessão de chat
-      const contactId = `peer-${Date.now()}`;
-      StorageManager.setCurrentSession(contactId);
+      // Criar sessão de chat para o receptor
+      const newContactId = `peer-${Date.now()}`;
+      setContactId(newContactId);
+      StorageManager.setCurrentSession(newContactId);
       StorageManager.saveChatSession({
-        contactId,
+        contactId: newContactId,
         contactName: 'Contato P2P',
         messages: [],
         createdAt: Date.now()
@@ -63,8 +91,11 @@ export default function Home() {
 
       toast({
         title: 'Código de resposta gerado!',
-        description: 'Envie este código para completar a conexão.'
+        description: 'Envie este código para completar a conexão. Aguardando conexão...'
       });
+
+      // Marcar que estamos aguardando conexão
+      setWaitingForConnection(true);
     } catch (error) {
       toast({
         title: 'Erro',
@@ -89,44 +120,20 @@ export default function Home() {
     try {
       JSON.parse(answerCode);
       await acceptAnswer(answerCode);
-      
-      // Criar sessão de chat
-      const contactId = `peer-${Date.now()}`;
-      StorageManager.setCurrentSession(contactId);
-      StorageManager.saveChatSession({
-        contactId,
-        contactName: 'Contato P2P',
-        messages: [],
-        createdAt: Date.now()
-      });
 
       toast({
-        title: 'Conexão estabelecida!',
-        description: 'Redirecionando para o chat...'
+        title: 'Processando...',
+        description: 'Estabelecendo conexão...'
       });
 
-      setTimeout(() => {
-        navigate('/chat');
-      }, 1000);
+      // Marcar que estamos aguardando conexão
+      setWaitingForConnection(true);
     } catch (error) {
       toast({
         title: 'Erro',
         description: 'Código de resposta inválido.',
         variant: 'destructive'
       });
-    }
-  };
-
-  const handleGoToChat = () => {
-    if (answerData) {
-      // Aguardar que o outro usuário cole a resposta
-      toast({
-        title: 'Aguardando',
-        description: 'Aguarde o outro usuário colar o código de resposta.',
-        variant: 'default'
-      });
-    } else {
-      navigate('/chat');
     }
   };
 
@@ -219,17 +226,47 @@ export default function Home() {
                 isProcessing={isProcessing}
               />
 
-              {answerData && (
-                <Button
-                  onClick={handleGoToChat}
-                  className="w-full"
-                  size="lg"
-                >
-                  Ir para o Chat
-                </Button>
+              {answerData && waitingForConnection && (
+                <Card className="bg-accent border-accent-foreground/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      <div>
+                        <p className="text-sm font-medium text-accent-foreground">
+                          Aguardando conexão...
+                        </p>
+                        <p className="text-xs text-accent-foreground/80 mt-1">
+                          Você será redirecionado automaticamente quando a conexão for estabelecida.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             </TabsContent>
           </Tabs>
+
+          {/* Status de conexão */}
+          {waitingForConnection && (
+            <Card className="bg-muted border-border">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {connectionState === 'connecting' && 'Estabelecendo conexão P2P...'}
+                      {connectionState === 'connected' && 'Conectado! Redirecionando...'}
+                      {connectionState === 'failed' && 'Falha na conexão. Tente novamente.'}
+                      {connectionState === 'disconnected' && 'Aguardando conexão...'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Status: {connectionState}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 

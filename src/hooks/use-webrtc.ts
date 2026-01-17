@@ -20,15 +20,17 @@ export function useWebRTC(contactId?: string) {
 
   // Configurar callbacks do WebRTC
   useEffect(() => {
-    webrtc.onStateChange((state) => {
+    const handleStateChange = (state: ConnectionState) => {
+      console.log('WebRTC State Changed:', state);
       setConnectionState(state);
       
       if (contactId) {
         StorageManager.updateContactStatus(contactId, state === 'connected');
       }
-    });
+    };
 
-    webrtc.onMessage((text) => {
+    const handleMessage = (text: string) => {
+      console.log('Message received:', text);
       if (!contactId) return;
 
       const newMessage: Message = {
@@ -41,19 +43,25 @@ export function useWebRTC(contactId?: string) {
 
       setMessages((prev) => [...prev, newMessage]);
       StorageManager.addMessage(contactId, newMessage);
-    });
+    };
 
-    webrtc.onTyping((isTyping) => {
+    const handleTyping = (isTyping: boolean) => {
       setPeerTyping(isTyping);
-    });
+    };
+
+    webrtc.onStateChange(handleStateChange);
+    webrtc.onMessage(handleMessage);
+    webrtc.onTyping(handleTyping);
 
     // Atualizar estado inicial
-    setConnectionState(webrtc.getConnectionState());
+    const currentState = webrtc.getConnectionState();
+    console.log('Initial WebRTC State:', currentState);
+    setConnectionState(currentState);
 
     return () => {
       // Cleanup não desconecta, apenas remove callbacks
     };
-  }, [contactId]);
+  }, [contactId, webrtc]);
 
   const sendMessage = useCallback((text: string) => {
     if (!contactId) return;
