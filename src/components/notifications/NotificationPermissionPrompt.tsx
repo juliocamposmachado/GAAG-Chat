@@ -54,7 +54,7 @@ export function NotificationPermissionPrompt() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Notificações do Like Look Solutions</DialogTitle>
+            <DialogTitle>Notificações do GAAG Chat</DialogTitle>
             <DialogDescription>
               Receba notificações com som quando:
             </DialogDescription>

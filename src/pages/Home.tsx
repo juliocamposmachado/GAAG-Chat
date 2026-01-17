@@ -223,7 +223,7 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">Like Look Solutions</h1>
+                <h1 className="text-xl font-bold">GAAG Chat</h1>
                 <p className="text-xs text-muted-foreground">Comunicação privada e descentralizada</p>
               </div>
             </div>
