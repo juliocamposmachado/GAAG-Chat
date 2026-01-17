@@ -311,15 +311,21 @@ export class WebRTCManager {
   // Enviar mensagem de mídia (imagem ou vídeo) com chunking
   async sendMediaMessage(file: File, mediaType: 'image' | 'video'): Promise<boolean> {
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
-      console.warn('[WebRTC] DataChannel não está aberto para enviar mídia');
+      console.error('[WebRTC] DataChannel não está aberto para enviar mídia. Estado:', this.dataChannel?.readyState);
       return false;
     }
 
     try {
-      console.log('[WebRTC] Enviando mensagem de mídia, tamanho:', file.size, 'bytes');
+      console.log('[WebRTC] Iniciando envio de mídia:', {
+        tipo: mediaType,
+        tamanho: file.size,
+        nome: file.name,
+        mimeType: file.type
+      });
       
       // Converter File para base64
       const base64Media = await this.blobToBase64(file);
+      console.log('[WebRTC] Arquivo convertido para base64, tamanho:', base64Media.length, 'caracteres');
       
       // Obter dimensões se for imagem
       let width: number | undefined;
@@ -329,10 +335,12 @@ export class WebRTCManager {
         const dimensions = await this.getImageDimensions(base64Media);
         width = dimensions.width;
         height = dimensions.height;
+        console.log('[WebRTC] Dimensões da imagem:', width, 'x', height);
       } else if (mediaType === 'video') {
         const dimensions = await this.getVideoDimensions(base64Media);
         width = dimensions.width;
         height = dimensions.height;
+        console.log('[WebRTC] Dimensões do vídeo:', width, 'x', height);
       }
       
       // Criar mensagem completa
@@ -344,13 +352,15 @@ export class WebRTCManager {
         height
       });
       
+      console.log('[WebRTC] Mensagem JSON criada, tamanho:', fullMessage.length, 'caracteres');
+      
       // Tamanho máximo de chunk (64KB para segurança)
       const CHUNK_SIZE = 64 * 1024;
       
       // Se a mensagem for pequena, enviar diretamente
       if (fullMessage.length <= CHUNK_SIZE) {
         this.dataChannel.send(fullMessage);
-        console.log('[WebRTC] Mídia enviada diretamente (tamanho pequeno)');
+        console.log('[WebRTC] ✅ Mídia enviada diretamente (tamanho pequeno)');
         return true;
       }
       
@@ -358,7 +368,7 @@ export class WebRTCManager {
       const messageId = `${Date.now()}-${Math.random()}`;
       const totalChunks = Math.ceil(fullMessage.length / CHUNK_SIZE);
       
-      console.log(`[WebRTC] Enviando mídia em ${totalChunks} chunks`);
+      console.log(`[WebRTC] 📦 Enviando mídia em ${totalChunks} chunks (${CHUNK_SIZE} bytes cada)`);
       
       // Enviar header primeiro
       this.dataChannel.send(JSON.stringify({
@@ -367,6 +377,8 @@ export class WebRTCManager {
         totalChunks,
         totalSize: fullMessage.length
       }));
+      
+      console.log('[WebRTC] Header enviado, aguardando processamento...');
       
       // Aguardar um pouco para garantir que o header foi processado
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -384,16 +396,20 @@ export class WebRTCManager {
           data: chunk
         }));
         
+        if ((i + 1) % 10 === 0 || i === totalChunks - 1) {
+          console.log(`[WebRTC] Progresso: ${i + 1}/${totalChunks} chunks enviados (${Math.round((i + 1) / totalChunks * 100)}%)`);
+        }
+        
         // Pequeno delay entre chunks para não sobrecarregar
         if (i < totalChunks - 1) {
           await new Promise(resolve => setTimeout(resolve, 10));
         }
       }
       
-      console.log('[WebRTC] Todos os chunks enviados com sucesso');
+      console.log('[WebRTC] ✅ Todos os chunks enviados com sucesso');
       return true;
     } catch (error) {
-      console.error('[WebRTC] Erro ao enviar mensagem de mídia:', error);
+      console.error('[WebRTC] ❌ Erro ao enviar mensagem de mídia:', error);
       return false;
     }
   }

@@ -49,18 +49,18 @@ export function MediaMessageDisplay({
 
   return (
     <>
-      <div className="relative group">
+      <div className="relative group max-w-full">
         {isImage && (
-          <div className="relative">
+          <div className="relative max-w-full overflow-hidden">
             <img
               src={mediaData}
               alt="Imagem enviada"
               className={cn(
-                "rounded-lg cursor-pointer object-cover",
+                "rounded-lg cursor-pointer object-contain w-full",
                 "hover:opacity-90 transition-opacity"
               )}
               style={{
-                maxWidth: `${previewDims.width}px`,
+                maxWidth: '100%',
                 maxHeight: `${previewDims.height}px`
               }}
               onClick={() => setShowFullscreen(true)}
@@ -90,13 +90,13 @@ export function MediaMessageDisplay({
         )}
 
         {isVideo && (
-          <div className="relative">
+          <div className="relative max-w-full overflow-hidden">
             <video
               src={mediaData}
               controls
-              className="rounded-lg max-w-full"
+              className="rounded-lg w-full"
               style={{
-                maxWidth: `${previewDims.width}px`,
+                maxWidth: '100%',
                 maxHeight: `${previewDims.height}px`
               }}
               preload="metadata"

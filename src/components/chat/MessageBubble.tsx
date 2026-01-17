@@ -26,7 +26,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     >
       <div
         className={cn(
-          'max-w-[75%] xl:max-w-[60%] rounded-2xl shadow-sm',
+          'max-w-[75%] xl:max-w-[60%] rounded-2xl shadow-sm overflow-hidden',
           (isAudioMessage || isMediaMessage) ? 'p-0' : 'px-4 py-2.5',
           isMe
             ? 'bg-primary text-primary-foreground rounded-br-sm'
@@ -53,7 +53,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </div>
           </div>
         ) : isMediaMessage ? (
-          <div className="p-2">
+          <div className="p-2 max-w-full">
             <MediaMessageDisplay
               mediaData={message.mediaData!}
               mediaType={message.mediaType!}
