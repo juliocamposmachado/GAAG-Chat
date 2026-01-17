@@ -75,7 +75,7 @@ export function useWebRTC(contactId?: string) {
     return () => {
       // Cleanup não desconecta, apenas remove callbacks
     };
-  }, [contactId, webrtc]);
+  }, [contactId]);
 
   const sendMessage = useCallback((text: string) => {
     if (!contactId) return;
