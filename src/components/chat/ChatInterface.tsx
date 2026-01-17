@@ -131,61 +131,63 @@ export function ChatInterface({
 
       {/* Área de input */}
       <div className="border-t border-border bg-card p-4">
-        <div className="flex gap-2">
-          {isRecordingVoice ? (
-            <VoiceMessageRecorder
-              onSend={(audioBlob, duration) => {
-                if (onSendAudioMessage) {
-                  onSendAudioMessage(audioBlob, duration);
-                }
-                setIsRecordingVoice(false);
-              }}
-              onCancel={() => setIsRecordingVoice(false)}
-            />
-          ) : (
-            <>
-              {/* Botões de mídia */}
-              {onSendMediaMessage && isConnected && (
+        {isRecordingVoice ? (
+          <VoiceMessageRecorder
+            onSend={(audioBlob, duration) => {
+              if (onSendAudioMessage) {
+                onSendAudioMessage(audioBlob, duration);
+              }
+              setIsRecordingVoice(false);
+            }}
+            onCancel={() => setIsRecordingVoice(false)}
+          />
+        ) : (
+          <div className="flex gap-2 items-end">
+            {/* Botões de mídia */}
+            {onSendMediaMessage && isConnected && (
+              <div className="flex-shrink-0">
                 <MediaMessageUploader
                   onSend={(file, mediaType) => {
                     onSendMediaMessage(file, mediaType);
                   }}
                 />
+              </div>
+            )}
+            
+            <Textarea
+              value={inputText}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
+              disabled={!isConnected}
+              className={cn(
+                'min-h-[44px] max-h-[120px] resize-none flex-1',
+                !isConnected && 'opacity-50 cursor-not-allowed'
               )}
-              
-              <Textarea
-                value={inputText}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isConnected ? 'Digite uma mensagem...' : 'Aguardando conexão...'}
-                disabled={!isConnected}
-                className={cn(
-                  'min-h-[44px] max-h-[120px] resize-none',
-                  !isConnected && 'opacity-50 cursor-not-allowed'
-                )}
-                rows={1}
-              />
-              
-              {/* Botão de mensagem de voz */}
-              {onSendAudioMessage && isConnected && (
+              rows={1}
+            />
+            
+            {/* Botão de mensagem de voz */}
+            {onSendAudioMessage && isConnected && (
+              <div className="flex-shrink-0">
                 <VoiceMessageRecorder
                   onSend={(audioBlob, duration) => {
                     onSendAudioMessage(audioBlob, duration);
                   }}
                 />
-              )}
-              
-              <Button
-                onClick={handleSend}
-                disabled={!inputText.trim() || !isConnected}
-                size="icon"
-                className="shrink-0 h-[44px] w-[44px]"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </>
-          )}
-        </div>
+              </div>
+            )}
+            
+            <Button
+              onClick={handleSend}
+              disabled={!inputText.trim() || !isConnected}
+              size="icon"
+              className="shrink-0 h-[44px] w-[44px]"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

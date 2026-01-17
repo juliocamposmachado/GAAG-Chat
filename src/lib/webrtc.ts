@@ -15,6 +15,9 @@ export class WebRTCManager {
   private onCallStateCallback: ((state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => void) | null = null;
   private onRemoteStreamCallback: ((stream: MediaStream) => void) | null = null;
 
+  // Buffer para receber chunks de mídia
+  private mediaChunkBuffer: Map<string, { chunks: string[], totalChunks: number, totalSize: number }> = new Map();
+
   private config: RTCConfiguration = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -94,12 +97,46 @@ export class WebRTCManager {
       try {
         const data = JSON.parse(event.data);
         console.log('[WebRTC] Mensagem recebida:', data.type);
+        
         if (data.type === 'message') {
           this.onMessageCallback?.(data.text);
         } else if (data.type === 'audio-message') {
           this.onAudioMessageCallback?.(data.audioData, data.duration);
         } else if (data.type === 'media-message') {
           this.onMediaMessageCallback?.(data.mediaData, data.mediaType, data.width, data.height);
+        } else if (data.type === 'media-chunk-start') {
+          // Iniciar buffer para receber chunks
+          console.log(`[WebRTC] Iniciando recebimento de ${data.totalChunks} chunks`);
+          this.mediaChunkBuffer.set(data.messageId, {
+            chunks: new Array(data.totalChunks),
+            totalChunks: data.totalChunks,
+            totalSize: data.totalSize
+          });
+        } else if (data.type === 'media-chunk') {
+          // Receber chunk
+          const buffer = this.mediaChunkBuffer.get(data.messageId);
+          if (buffer) {
+            buffer.chunks[data.chunkIndex] = data.data;
+            console.log(`[WebRTC] Chunk ${data.chunkIndex + 1}/${buffer.totalChunks} recebido`);
+            
+            // Verificar se todos os chunks foram recebidos
+            const allReceived = buffer.chunks.every(chunk => chunk !== undefined);
+            if (allReceived) {
+              console.log('[WebRTC] Todos os chunks recebidos, remontando mensagem');
+              const fullMessage = buffer.chunks.join('');
+              this.mediaChunkBuffer.delete(data.messageId);
+              
+              // Processar mensagem completa
+              try {
+                const mediaData = JSON.parse(fullMessage);
+                if (mediaData.type === 'media-message') {
+                  this.onMediaMessageCallback?.(mediaData.mediaData, mediaData.mediaType, mediaData.width, mediaData.height);
+                }
+              } catch (error) {
+                console.error('[WebRTC] Erro ao processar mensagem remontada:', error);
+              }
+            }
+          }
         } else if (data.type === 'typing') {
           this.onTypingCallback?.(data.isTyping);
         } else if (data.type === 'call-request') {
@@ -271,7 +308,7 @@ export class WebRTCManager {
     });
   }
 
-  // Enviar mensagem de mídia (imagem ou vídeo)
+  // Enviar mensagem de mídia (imagem ou vídeo) com chunking
   async sendMediaMessage(file: File, mediaType: 'image' | 'video'): Promise<boolean> {
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
       console.warn('[WebRTC] DataChannel não está aberto para enviar mídia');
@@ -298,15 +335,62 @@ export class WebRTCManager {
         height = dimensions.height;
       }
       
-      // Enviar mensagem de mídia
-      this.dataChannel.send(JSON.stringify({ 
+      // Criar mensagem completa
+      const fullMessage = JSON.stringify({ 
         type: 'media-message', 
         mediaData: base64Media,
         mediaType: file.type,
         width,
         height
+      });
+      
+      // Tamanho máximo de chunk (64KB para segurança)
+      const CHUNK_SIZE = 64 * 1024;
+      
+      // Se a mensagem for pequena, enviar diretamente
+      if (fullMessage.length <= CHUNK_SIZE) {
+        this.dataChannel.send(fullMessage);
+        console.log('[WebRTC] Mídia enviada diretamente (tamanho pequeno)');
+        return true;
+      }
+      
+      // Caso contrário, enviar em chunks
+      const messageId = `${Date.now()}-${Math.random()}`;
+      const totalChunks = Math.ceil(fullMessage.length / CHUNK_SIZE);
+      
+      console.log(`[WebRTC] Enviando mídia em ${totalChunks} chunks`);
+      
+      // Enviar header primeiro
+      this.dataChannel.send(JSON.stringify({
+        type: 'media-chunk-start',
+        messageId,
+        totalChunks,
+        totalSize: fullMessage.length
       }));
       
+      // Aguardar um pouco para garantir que o header foi processado
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Enviar cada chunk
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, fullMessage.length);
+        const chunk = fullMessage.substring(start, end);
+        
+        this.dataChannel.send(JSON.stringify({
+          type: 'media-chunk',
+          messageId,
+          chunkIndex: i,
+          data: chunk
+        }));
+        
+        // Pequeno delay entre chunks para não sobrecarregar
+        if (i < totalChunks - 1) {
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+      }
+      
+      console.log('[WebRTC] Todos os chunks enviados com sucesso');
       return true;
     } catch (error) {
       console.error('[WebRTC] Erro ao enviar mensagem de mídia:', error);
