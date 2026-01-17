@@ -7,6 +7,8 @@ export function useWebRTC(contactId?: string) {
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
   const [messages, setMessages] = useState<Message[]>([]);
   const [peerTyping, setPeerTyping] = useState(false);
+  const [callState, setCallState] = useState<'idle' | 'calling' | 'ringing' | 'active' | 'ended'>('idle');
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
   const webrtc = getWebRTCManager();
 
@@ -49,9 +51,21 @@ export function useWebRTC(contactId?: string) {
       setPeerTyping(isTyping);
     };
 
+    const handleCallState = (state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => {
+      console.log('Call State Changed:', state);
+      setCallState(state);
+    };
+
+    const handleRemoteStream = (stream: MediaStream) => {
+      console.log('Remote Stream Received');
+      setRemoteStream(stream);
+    };
+
     webrtc.onStateChange(handleStateChange);
     webrtc.onMessage(handleMessage);
     webrtc.onTyping(handleTyping);
+    webrtc.onCallState(handleCallState);
+    webrtc.onRemoteStream(handleRemoteStream);
 
     // Atualizar estado inicial
     const currentState = webrtc.getConnectionState();
@@ -125,12 +139,44 @@ export function useWebRTC(contactId?: string) {
     setConnectionState('disconnected');
     setMessages([]);
     setPeerTyping(false);
+    setCallState('idle');
+    setRemoteStream(null);
+  }, []);
+
+  const startVoiceCall = useCallback(async () => {
+    try {
+      await webrtc.startVoiceCall();
+    } catch (error) {
+      console.error('Erro ao iniciar chamada:', error);
+      throw error;
+    }
+  }, []);
+
+  const acceptVoiceCall = useCallback(() => {
+    webrtc.acceptVoiceCall();
+  }, []);
+
+  const rejectVoiceCall = useCallback(() => {
+    webrtc.rejectVoiceCall();
+    setCallState('idle');
+  }, []);
+
+  const endVoiceCall = useCallback(() => {
+    webrtc.endVoiceCall();
+    setCallState('idle');
+    setRemoteStream(null);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    return webrtc.toggleMute();
   }, []);
 
   return {
     connectionState,
     messages,
     peerTyping,
+    callState,
+    remoteStream,
     sendMessage,
     sendTypingIndicator,
     createOffer,
@@ -138,6 +184,11 @@ export function useWebRTC(contactId?: string) {
     acceptAnswer,
     disconnect,
     reset,
+    startVoiceCall,
+    acceptVoiceCall,
+    rejectVoiceCall,
+    endVoiceCall,
+    toggleMute,
     isConnected: connectionState === 'connected'
   };
 }

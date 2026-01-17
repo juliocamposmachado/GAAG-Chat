@@ -5,9 +5,13 @@ import type { ConnectionState } from '@/types';
 export class WebRTCManager {
   private peerConnection: RTCPeerConnection | null = null;
   private dataChannel: RTCDataChannel | null = null;
+  private localStream: MediaStream | null = null;
+  private remoteStream: MediaStream | null = null;
   private onMessageCallback: ((message: string) => void) | null = null;
   private onStateChangeCallback: ((state: ConnectionState) => void) | null = null;
   private onTypingCallback: ((isTyping: boolean) => void) | null = null;
+  private onCallStateCallback: ((state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => void) | null = null;
+  private onRemoteStreamCallback: ((stream: MediaStream) => void) | null = null;
 
   private config: RTCConfiguration = {
     iceServers: [
@@ -55,6 +59,14 @@ export class WebRTCManager {
       this.dataChannel = event.channel;
       this.setupDataChannel();
     };
+
+    this.peerConnection.ontrack = (event) => {
+      console.log('[WebRTC] Track recebido:', event.track.kind);
+      if (event.streams && event.streams[0]) {
+        this.remoteStream = event.streams[0];
+        this.onRemoteStreamCallback?.(this.remoteStream);
+      }
+    };
   }
 
   private setupDataChannel() {
@@ -84,6 +96,14 @@ export class WebRTCManager {
           this.onMessageCallback?.(data.text);
         } else if (data.type === 'typing') {
           this.onTypingCallback?.(data.isTyping);
+        } else if (data.type === 'call-request') {
+          this.onCallStateCallback?.('ringing');
+        } else if (data.type === 'call-accept') {
+          this.onCallStateCallback?.('active');
+        } else if (data.type === 'call-reject') {
+          this.onCallStateCallback?.('ended');
+        } else if (data.type === 'call-end') {
+          this.onCallStateCallback?.('ended');
         }
       } catch (error) {
         console.error('Erro ao processar mensagem:', error);
@@ -235,8 +255,126 @@ export class WebRTCManager {
     return 'disconnected';
   }
 
+  // Métodos de chamada de voz
+  async startVoiceCall(): Promise<void> {
+    console.log('[WebRTC] Iniciando chamada de voz');
+    try {
+      // Solicitar acesso ao microfone
+      this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('[WebRTC] Microfone acessado');
+
+      // Adicionar tracks de áudio à conexão
+      this.localStream.getTracks().forEach(track => {
+        if (this.peerConnection && this.localStream) {
+          this.peerConnection.addTrack(track, this.localStream);
+          console.log('[WebRTC] Track de áudio adicionado');
+        }
+      });
+
+      // Enviar sinal de chamada
+      this.sendCallSignal('call-request');
+      this.onCallStateCallback?.('calling');
+    } catch (error) {
+      console.error('[WebRTC] Erro ao iniciar chamada:', error);
+      throw error;
+    }
+  }
+
+  acceptVoiceCall(): void {
+    console.log('[WebRTC] Aceitando chamada de voz');
+    this.sendCallSignal('call-accept');
+    this.onCallStateCallback?.('active');
+  }
+
+  rejectVoiceCall(): void {
+    console.log('[WebRTC] Rejeitando chamada de voz');
+    this.sendCallSignal('call-reject');
+    this.endVoiceCall();
+  }
+
+  endVoiceCall(): void {
+    console.log('[WebRTC] Encerrando chamada de voz');
+    
+    // Enviar sinal de encerramento
+    this.sendCallSignal('call-end');
+    
+    // Parar todos os tracks locais
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => {
+        track.stop();
+        console.log('[WebRTC] Track local parado');
+      });
+      this.localStream = null;
+    }
+
+    // Remover tracks da conexão
+    if (this.peerConnection) {
+      this.peerConnection.getSenders().forEach(sender => {
+        if (sender.track) {
+          this.peerConnection?.removeTrack(sender);
+        }
+      });
+    }
+
+    this.onCallStateCallback?.('ended');
+  }
+
+  toggleMute(): boolean {
+    if (!this.localStream) return false;
+
+    const audioTrack = this.localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+      console.log('[WebRTC] Microfone:', audioTrack.enabled ? 'ativado' : 'mutado');
+      return !audioTrack.enabled; // Retorna true se mutado
+    }
+    return false;
+  }
+
+  isMuted(): boolean {
+    if (!this.localStream) return false;
+    const audioTrack = this.localStream.getAudioTracks()[0];
+    return audioTrack ? !audioTrack.enabled : false;
+  }
+
+  private sendCallSignal(type: string): void {
+    if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+      console.warn('[WebRTC] Canal não disponível para enviar sinal de chamada');
+      return;
+    }
+
+    try {
+      this.dataChannel.send(JSON.stringify({ type }));
+      console.log('[WebRTC] Sinal de chamada enviado:', type);
+    } catch (error) {
+      console.error('[WebRTC] Erro ao enviar sinal de chamada:', error);
+    }
+  }
+
+  onCallState(callback: (state: 'idle' | 'calling' | 'ringing' | 'active' | 'ended') => void): void {
+    this.onCallStateCallback = callback;
+  }
+
+  onRemoteStream(callback: (stream: MediaStream) => void): void {
+    this.onRemoteStreamCallback = callback;
+  }
+
+  getLocalStream(): MediaStream | null {
+    return this.localStream;
+  }
+
+  getRemoteStream(): MediaStream | null {
+    return this.remoteStream;
+  }
+
   disconnect(): void {
     console.log('[WebRTC] Desconectando');
+    
+    // Encerrar chamada se ativa
+    if (this.localStream) {
+      this.endVoiceCall();
+    }
+    
     if (this.dataChannel) {
       this.dataChannel.close();
       this.dataChannel = null;
@@ -247,6 +385,7 @@ export class WebRTCManager {
       this.peerConnection = null;
     }
 
+    this.remoteStream = null;
     this.notifyStateChange('disconnected');
   }
 

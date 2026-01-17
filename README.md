@@ -17,7 +17,8 @@ Aplicativo de comunicação peer-to-peer baseado em WebRTC que permite conversas
 - **💾 Contatos Salvos**: Salve conexões para reconectar rapidamente
 - **✏️ Renomear Contatos**: Personalize nomes dos seus contatos
 - **🔄 Reconexão Rápida**: Acesse conversas anteriores com um clique
-- **🔔 Notificações com Som**: Receba alertas sonoros de reconexões e mensagens
+- **📞 Chamadas de Voz**: Chamadas P2P com áudio criptografado
+- **🔔 Notificações com Som**: Receba alertas sonoros de reconexões, mensagens e chamadas
 
 ## 🚀 Como Usar
 
@@ -63,10 +64,34 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 - **Enviar Mensagens**: Digite e pressione Enter ou clique no botão enviar
 - **Indicador de Digitação**: Veja quando o outro usuário está digitando
 - **Status de Conexão**: Monitore o estado da conexão no topo
+- **Chamada de Voz**: Clique no ícone de telefone (📞) para iniciar chamada
 - **Salvar Contato**: Menu (⋮) → "Salvar Contato" para reconexão futura
 - **Renomear**: Menu (⋮) → "Renomear" para personalizar o nome
 - **Exportar Dados**: Menu (⋮) → "Exportar Dados" para backup
 - **Desconectar**: Encerre a conexão quando desejar
+
+### Chamadas de Voz
+
+**Iniciar Chamada:**
+1. Certifique-se de estar conectado com o contato
+2. Clique no ícone de telefone (📞) no cabeçalho
+3. Aguarde o contato aceitar a chamada
+4. Comece a conversar quando conectado
+
+**Receber Chamada:**
+1. Você receberá notificação com som de toque
+2. Clique em "Atender" para aceitar
+3. Ou clique em "Recusar" para rejeitar
+
+**Durante a Chamada:**
+- **Mutar/Desmutar**: Clique no ícone de microfone
+- **Encerrar**: Clique no botão vermelho de telefone
+- **Duração**: Visualize o tempo de chamada em tempo real
+
+**Requisitos:**
+- Permissão de acesso ao microfone
+- Conexão WebRTC estabelecida
+- Ambos os usuários online
 
 ### Reconectar com Contatos Salvos
 
@@ -86,6 +111,7 @@ O GAAG Chat é um PWA (Progressive Web App) e pode ser instalado no seu disposit
 - Reconectar com um contato salvo (visual + som)
 - Receber uma nova mensagem (sempre som, visual sempre em mobile, apenas em background no desktop)
 - Enviar uma mensagem (som sempre, visual apenas em mobile)
+- Receber uma chamada de voz (visual + som de toque)
 - Conexão WebRTC for estabelecida com sucesso (visual + som)
 
 **Todas as notificações incluem som!**
@@ -183,6 +209,7 @@ npm run lint
 - **[PWA_GUIDE.md](./PWA_GUIDE.md)**: Guia completo sobre PWA e instalação
 - **[CONTACT_MANAGEMENT.md](./CONTACT_MANAGEMENT.md)**: Sistema de gerenciamento de contatos
 - **[RECONNECTION_GUIDE.md](./RECONNECTION_GUIDE.md)**: Reconexão automática com credenciais salvas
+- **[VOICE_CALL_GUIDE.md](./VOICE_CALL_GUIDE.md)**: Chamadas de voz P2P com WebRTC
 - **[NOTIFICATIONS_GUIDE.md](./NOTIFICATIONS_GUIDE.md)**: Sistema de notificações com som
 - **[MOBILE_NOTIFICATIONS.md](./MOBILE_NOTIFICATIONS.md)**: Notificações otimizadas para mobile
 

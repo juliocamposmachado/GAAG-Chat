@@ -134,6 +134,59 @@ export class NotificationManager {
     });
   }
 
+  // Notificar chamada recebida
+  static notifyIncomingCall(contactName: string): void {
+    this.notify('📞 Chamada de Voz', {
+      body: `${contactName} está chamando...`,
+      tag: 'incoming-call',
+      icon: '/favicon.png',
+      requireInteraction: true
+    });
+    
+    // Tocar som de chamada
+    this.playCallRingtone();
+  }
+
+  // Som de toque de chamada
+  private static playCallRingtone(): void {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Tocar toque repetidamente
+      let count = 0;
+      const maxRings = 5;
+      
+      const playRing = () => {
+        if (count >= maxRings) return;
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+        
+        count++;
+        if (count < maxRings) {
+          setTimeout(playRing, 1000);
+        }
+      };
+      
+      playRing();
+    } catch (error) {
+      console.error('[Notificações] Erro ao tocar toque de chamada:', error);
+    }
+  }
+
   // Notificar nova mensagem
   static notifyNewMessage(contactName: string, message: string): void {
     // Em mobile, sempre notificar

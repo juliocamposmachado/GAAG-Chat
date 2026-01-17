@@ -3,10 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SaveContactDialog } from '@/components/chat/SaveContactDialog';
+import { IncomingCallDialog } from '@/components/voice/IncomingCallDialog';
+import { ActiveCallInterface } from '@/components/voice/ActiveCallInterface';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import { StorageManager } from '@/lib/storage';
 import { NotificationManager } from '@/lib/notifications';
-import { Shield, ArrowLeft, Download, Trash2, Edit, Save } from 'lucide-react';
+import { Shield, ArrowLeft, Download, Trash2, Edit, Save, Phone } from 'lucide-react';
 import type { SavedContact } from '@/types';
 import {
   AlertDialog,
@@ -43,12 +45,19 @@ export default function Chat() {
     connectionState,
     messages,
     peerTyping,
+    callState,
+    remoteStream,
     sendMessage,
     sendTypingIndicator,
     acceptOffer,
     acceptAnswer,
     disconnect,
-    reset
+    reset,
+    startVoiceCall,
+    acceptVoiceCall,
+    rejectVoiceCall,
+    endVoiceCall,
+    toggleMute
   } = useWebRTC(contactId || undefined);
 
   useEffect(() => {
@@ -156,7 +165,59 @@ export default function Chat() {
     }
   }, [messages, contactName]);
 
+  // Notificar quando receber chamada
+  useEffect(() => {
+    if (callState === 'ringing') {
+      NotificationManager.notifyIncomingCall(contactName);
+    }
+  }, [callState, contactName]);
+
+  const handleStartCall = async () => {
+    try {
+      await startVoiceCall();
+      toast({
+        title: 'Chamando...',
+        description: `Iniciando chamada com ${contactName}`
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao Iniciar Chamada',
+        description: 'Não foi possível acessar o microfone. Verifique as permissões.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleAcceptCall = () => {
+    acceptVoiceCall();
+    toast({
+      title: 'Chamada Aceita',
+      description: 'Chamada de voz iniciada'
+    });
+  };
+
+  const handleRejectCall = () => {
+    rejectVoiceCall();
+    toast({
+      title: 'Chamada Recusada',
+      description: 'Você recusou a chamada'
+    });
+  };
+
+  const handleEndCall = () => {
+    endVoiceCall();
+    toast({
+      title: 'Chamada Encerrada',
+      description: 'A chamada foi finalizada'
+    });
+  };
+
   const handleDisconnect = () => {
+    // Encerrar chamada se ativa
+    if (callState === 'active' || callState === 'calling') {
+      endVoiceCall();
+    }
+    
     disconnect();
     StorageManager.clearCurrentSession();
     if (contactId) {
@@ -272,6 +333,18 @@ export default function Chat() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Botão de chamada de voz */}
+              {connectionState === 'connected' && callState === 'idle' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleStartCall}
+                  title="Iniciar chamada de voz"
+                >
+                  <Phone className="w-5 h-5" />
+                </Button>
+              )}
+              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" title="Menu">
@@ -362,14 +435,37 @@ export default function Chat() {
 
       {/* Chat Interface */}
       <div className="flex-1 overflow-hidden">
-        <ChatInterface
-          messages={messages}
-          onSendMessage={sendMessage}
-          connectionState={connectionState}
-          peerTyping={peerTyping}
-          onTyping={sendTypingIndicator}
-        />
+        {/* Interface de chamada ativa */}
+        {callState === 'active' && (
+          <div className="container mx-auto px-4 py-6">
+            <ActiveCallInterface
+              contactName={contactName}
+              remoteStream={remoteStream}
+              onEndCall={handleEndCall}
+              onToggleMute={toggleMute}
+            />
+          </div>
+        )}
+
+        {/* Interface de chat (oculta durante chamada) */}
+        {callState !== 'active' && (
+          <ChatInterface
+            messages={messages}
+            onSendMessage={sendMessage}
+            connectionState={connectionState}
+            peerTyping={peerTyping}
+            onTyping={sendTypingIndicator}
+          />
+        )}
       </div>
+
+      {/* Incoming Call Dialog */}
+      <IncomingCallDialog
+        open={callState === 'ringing'}
+        contactName={contactName}
+        onAccept={handleAcceptCall}
+        onReject={handleRejectCall}
+      />
 
       {/* Save Contact Dialog */}
       <SaveContactDialog
