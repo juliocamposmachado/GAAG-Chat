@@ -356,50 +356,49 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
-<Button
-  asChild
-  className="w-full"
-  size="lg"
->
-  <a
-    href="https://app-90b35tpuzpxe.appmedo.com/"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    Convidar para o GAAG Chat
-  </a>
-</Button>
+    <footer className="border-t border-border bg-card py-6">
+  <div className="container mx-auto px-4">
+    <div className="flex flex-col items-center gap-4 text-center">
 
+      {/* Botão Convidar */}
+      <Button asChild className="w-full max-w-sm" size="lg">
+        <a
+          href="https://app-90b35tpuzpxe.appmedo.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Convidar para o GAAG Chat
+        </a>
+      </Button>
 
+      {/* Créditos */}
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-sm font-semibold text-foreground">
+          Like Look Solutions
+        </span>
 
-      
-      <footer className="border-t border-border bg-card py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground">Like Look Solutions</span>
-            </div>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>Projeto Visionado Por</p>
-              <p className="font-medium text-foreground">
-                Julio Cesar Campos Machado - Programador Full Stack
-              </p>
-              <a 
-                href="https://likelook.wixsite.com/solutions" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline inline-block mt-1"
-              >
-                likelook.wixsite.com/solutions
-              </a>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              © 2026 Like Look Solutions • Privacidade e segurança em primeiro lugar
-            </p>
-          </div>
+        <div className="text-xs text-muted-foreground space-y-1">
+          <p>Projeto Visionado Por</p>
+          <p className="font-medium text-foreground">
+            Julio Cesar Campos Machado - Programador Full Stack
+          </p>
+          <a
+            href="https://likelook.wixsite.com/solutions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            likelook.wixsite.com/solutions
+          </a>
         </div>
-      </footer>
+
+        <p className="text-xs text-muted-foreground mt-2">
+          © 2026 Like Look Solutions • Privacidade e segurança em primeiro lugar
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
     </div>
   );
 }
