@@ -357,6 +357,23 @@ export default function Home() {
       </main>
 
       {/* Footer */}
+<Button
+  asChild
+  className="w-full"
+  size="lg"
+>
+  <a
+    href="https://app-90b35tpuzpxe.appmedo.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Convidar para o GAAG Chat
+  </a>
+</Button>
+
+
+
+      
       <footer className="border-t border-border bg-card py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center gap-3 text-center">
