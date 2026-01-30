@@ -1,5 +1,5 @@
 # Welcome 
-Link URL:https://gaag-chat.vercel.app
+Link URL: https://gaag-chat.vercel.app
 
 # Like Look Solutions - Aplicativo de Comunicação Descentralizada
 
